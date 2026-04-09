@@ -49,6 +49,10 @@ interface SlackChannelListResponse {
 
 export class SlackAdapter extends BaseAdapter {
     readonly id: IntegrationId = 'slack';
+    
+    override isConfigured(): boolean {
+        return !!CLIENT_ID && !CLIENT_ID.includes('your-');
+    }
 
     buildOAuthUrl(redirectUri: string): string {
         if (!CLIENT_ID) {

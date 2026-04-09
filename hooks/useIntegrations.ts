@@ -41,6 +41,8 @@ export interface EnrichedIntegration extends IntegrationMeta {
     supportsLocalBridge: boolean;
     /** Whether this adapter is an AI assistant (shows in AI section, enables chat). */
     isAIAssistant: boolean;
+    /** Whether this tool has been properly configured in .env. */
+    isConfigured: boolean;
 }
 
 function readAllStatuses(): Record<IntegrationId, IntegrationStatus> {
@@ -203,7 +205,8 @@ export function useIntegrations() {
         supportsPAT: ADAPTERS[meta.id]?.supportsPAT ?? false,
         supportsApiKey: ADAPTERS[meta.id]?.supportsApiKey ?? false,
         supportsLocalBridge: ADAPTERS[meta.id]?.supportsLocalBridge ?? false,
-        isAIAssistant: ADAPTERS[meta.id]?.isAIAssistant ?? false
+        isAIAssistant: ADAPTERS[meta.id]?.isAIAssistant ?? false,
+        isConfigured: ADAPTERS[meta.id]?.isConfigured() ?? true
     }));
 
     return { integrations, connect, connectWithPAT, connectWithApiKey, connectDirect, disconnect, getStatus };

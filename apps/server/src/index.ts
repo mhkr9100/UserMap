@@ -6,6 +6,7 @@ import statusRouter from './routes/status.js';
 import connectionsRouter from './routes/connections.js';
 import slackRouter from './routes/slack.js';
 import contextRouter from './routes/context.js';
+import prismRouter from './routes/prism.js';
 
 const PORT = parseInt(process.env.PORT ?? '5185', 10);
 const APP_URL = process.env.APP_URL ?? `http://localhost:${PORT}`;
@@ -35,6 +36,8 @@ app.use('/api/status', statusRouter);
 app.use('/api/connections', connectionsRouter);
 app.use('/api/connect/slack', slackRouter);
 app.use('/api/context', contextRouter);
+app.use('/api/prism/context', prismRouter);
+
 
 // 404 handler
 app.use((_req, res) => {

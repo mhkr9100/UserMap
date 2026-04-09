@@ -101,6 +101,10 @@ function extractPlainText(part: GmailMessagePart): string {
 export class GmailAdapter extends BaseAdapter {
     readonly id: IntegrationId = 'gmail';
 
+    override isConfigured(): boolean {
+        return !!CLIENT_ID && !CLIENT_ID.includes('your-');
+    }
+
     buildOAuthUrl(redirectUri: string): string {
         if (!CLIENT_ID) {
             throw new Error('VITE_GOOGLE_CLIENT_ID is not set. Add it to your .env file.');

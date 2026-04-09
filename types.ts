@@ -14,6 +14,7 @@ export interface PageNode {
   value?: string;
   source?: string;
   sourceDate?: string;
+  visibility?: 'public' | 'private';
   nodeType?: UserMapNodeType;
   importance?: UserMapImportance;
   confidence?: number;

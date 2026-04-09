@@ -185,6 +185,13 @@ export const IntegrationsPanel: React.FC<IntegrationsPanelProps> = ({ isOpen, on
                         {errMsg}
                     </div>
                 )}
+                
+                {/* Configuration required warning */}
+                {!integration.isConfigured && !isConnected && (
+                    <div className="text-[10px] text-amber-600 dark:text-amber-400 -mt-1 leading-snug font-medium italic">
+                        Not configured. Set your Client ID in .env to enable.
+                    </div>
+                )}
 
                 {/* PAT input (GitHub) */}
                 {isPatMode && (
@@ -279,8 +286,8 @@ export const IntegrationsPanel: React.FC<IntegrationsPanelProps> = ({ isOpen, on
                                 {!integration.supportsApiKey && !integration.supportsLocalBridge && (
                                     <button
                                         onClick={() => handleConnect(integration.id)}
-                                        disabled={isBusy}
-                                        className="flex-1 h-9 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-[0.12em] flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                        disabled={isBusy || !integration.isConfigured}
+                                        className="flex-1 h-9 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black text-[10px] font-black uppercase tracking-[0.12em] flex items-center justify-center gap-1.5 disabled:opacity-40"
                                     >
                                         {isBusy ? (
                                             <Loader2 size={12} className="animate-spin" />

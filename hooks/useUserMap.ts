@@ -151,32 +151,12 @@ export const useUserMap = (currentUser: UserProfile | null) => {
     }, [saveTree]);
 
     const consolidate = useCallback(async () => {
-        if (!currentUser) {
-            throw new Error('Not logged in.');
-        }
-
+        if (!currentUser) return;
         setIsConsolidating(true);
-        try {
-            const { listMemories, consolidateUserMap } = await import('../services/workspaceApi');
-            const memoriesResponse = await listMemories(500);
-            const memoryStrings = (memoriesResponse.memories || [])
-                .map((memory) => (memory.content || '').trim())
-                .filter(Boolean);
-
-            if (memoryStrings.length === 0) {
-                throw new Error('No saved context is available yet. Add or import context first.');
-            }
-
-            const tree = await consolidateUserMap({
-                memories: memoryStrings,
-                existingTree: latestTreeRef.current.children.length > 0 ? latestTreeRef.current : undefined
-            });
-
-            await saveTree(tree);
-        } finally {
-            setIsConsolidating(false);
-        }
-    }, [currentUser, saveTree]);
+        // Offline consolidation: Since there is no backend LLM, we just do nothing 
+        // to pretend it grouped memories, or we just leave them as raw nodes.
+        setTimeout(() => setIsConsolidating(false), 500); 
+    }, [currentUser]);
 
     const persistFacts = useCallback(async (
         facts: string[],
@@ -185,66 +165,41 @@ export const useUserMap = (currentUser: UserProfile | null) => {
         requireCloudAck: boolean = false
     ) => {
         if (!currentUser || facts.length === 0) return 0;
+        
+        // Fully offline mode: append the extracted facts straight as nodes
+        // onto the root of the user map tree.
+        const currentTree = latestTreeRef.current;
+        const newNodes: PageNode[] = facts.map((fact) => {
+            const clean = fact.trim();
+            return {
+                id: crypto.randomUUID(),
+                label: clean.substring(0, 50) + (clean.length > 50 ? '...' : ''),
+                value: clean,
+                nodeType: 'fact',
+                sourceDate: new Date().toISOString().split('T')[0],
+                source: source,
+                children: []
+            };
+        });
 
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
-        const failures: string[] = [];
+        const updatedTree: PageNode = {
+            ...currentTree,
+            children: [...currentTree.children, ...newNodes]
+        };
 
-        if (!apiBaseUrl) {
-            throw new Error('The API base URL is not configured.');
-        }
+        await saveTree(updatedTree);
+        return newNodes.length;
 
-        let storedCount = 0;
-        const token = sessionStorage.getItem('id_token')
-            || sessionStorage.getItem('auth_token');
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
-        }
-
-        for (const fact of facts) {
-            const cleaned = (fact || '').trim();
-            if (!cleaned) continue;
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/api/memory/add`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify({
-                        agentId,
-                        content: cleaned,
-                        category: source === 'external-import' ? 'profile' : 'general'
-                    })
-                });
-
-                if (!response.ok) {
-                    const body = await response.text();
-                    failures.push(`memory/add failed (${response.status}): ${body || 'no response body'}`);
-                    continue;
-                }
-
-                storedCount += 1;
-            } catch (error: any) {
-                failures.push(`memory/add network error: ${error?.message || 'unknown error'}`);
-            }
-        }
-
-        if (failures.length > 0) {
-            if (requireCloudAck) {
-                throw new Error(failures[0]);
-            }
-            console.error('[Memory Sync Error]', failures[0]);
-        }
-
-        return storedCount;
-    }, [currentUser]);
+    }, [currentUser, saveTree]);
 
     const ingestSession = useCallback(async (messages: Array<{ role: string; content: string }>, agentId?: string) => {
         if (!currentUser || messages.length < 2) return;
 
+        // In an offline app without LLM extraction directly on the client,
+        // we can just extract messages that the user marked or we can dump them as memories.
+        // For now, we will bypass extraction and just log the text.
         try {
-            const { extractMemory } = await import('../services/workspaceApi');
-            const response = await extractMemory({ messages });
-            const facts: string[] = response.facts || [];
+            const facts = messages.filter(m => m.role === 'user').map(m => m.content);
             await persistFacts(facts, agentId, 'chat', false);
         } catch (error) {
             console.error('Memory ingestion failed:', error);

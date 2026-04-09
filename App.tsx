@@ -1,19 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { LogOut, Moon, Sun, Plug, Bot } from 'lucide-react';
-import { AIChatPanel } from './components/AIChatPanel';
+import { PrismInterface } from './components/PrismInterface';
+import { PrismSetup } from './components/PrismSetup';
 import { ContextImportDialog } from './components/ContextImportDialog';
 import { IntegrationsPanel } from './components/IntegrationsPanel';
-import { LoginScreen } from './components/LoginScreen';
+
 import { UserMapView } from './components/UserMapView';
 import { BrandMark } from './components/icons/BrandMark';
 import { useAuth } from './hooks/useAuth';
 import { useUserMap } from './hooks/useUserMap';
 import { useIntegrations } from './hooks/useIntegrations';
 import { queryContext } from './services/contextQuery';
+import { ADAPTERS } from './services/integrations';
+import { structurerService } from './services/structurerService';
 import type { ToolContextItem } from './types';
 
+
 const App: React.FC = () => {
-  const { currentUser, isInitializing, login, logout } = useAuth();
+  const { currentUser } = useAuth();
   const {
     userMapTree,
     updateNode,
@@ -28,8 +32,8 @@ const App: React.FC = () => {
   const [isMemoryImportOpen, setIsMemoryImportOpen] = useState(false);
   const [isMemoryImporting, setIsMemoryImporting] = useState(false);
   const [isIntegrationsPanelOpen, setIsIntegrationsPanelOpen] = useState(false);
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
-  const [aiContextItems, setAiContextItems] = useState<ToolContextItem[]>([]);
+  const [isPrismOpen, setIsPrismOpen] = useState(false);
+  const [isPrismSetupVisible, setIsPrismSetupVisible] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) return 'dark';
     return 'light';
@@ -74,35 +78,57 @@ const App: React.FC = () => {
     () => integrations.filter((i) => i.status === 'connected').length,
     [integrations]
   );
-  const connectedAICount = useMemo(
-    () => integrations.filter((i) => i.isAIAssistant && i.status === 'connected').length,
-    [integrations]
-  );
+  const connectedAICount = useMemo(() => {
+    return integrations.filter((i) => i.isAIAssistant && i.status === 'connected').length;
+  }, [integrations]);
 
-  /** Open the AI chat panel, refreshing context from all connected data-source adapters. */
-  const handleOpenAIChat = useCallback(async () => {
-    setIsAIChatOpen(true);
-    try {
-      const response = await queryContext({ query: '' });
-      setAiContextItems(response.results);
-    } catch {
-      setAiContextItems([]);
+  /** Show setup if no AI is connected on first launch */
+  useEffect(() => {
+    if (connectedAICount === 0 && !localStorage.getItem('prism_setup_complete')) {
+      setIsPrismSetupVisible(true);
     }
+  }, [connectedAICount]);
+
+  const handleCompleteSetup = useCallback(() => {
+    localStorage.setItem('prism_setup_complete', 'true');
+    setIsPrismSetupVisible(false);
   }, []);
 
-  if (isInitializing) {
-    return (
-      <div className="h-screen w-screen bg-[#F8F9FA] dark:bg-[#1A1A1A] flex items-center justify-center transition-colors duration-300">
-        <div className="text-gray-900 dark:text-white font-bold animate-pulse uppercase tracking-[0.5em] text-xs">
-          Initializing UserMap...
-        </div>
-      </div>
-    );
-  }
+  const handleOpenPrism = useCallback(() => {
+    setIsPrismOpen(true);
+  }, []);
 
-  if (!currentUser) {
-    return <LoginScreen onLogin={login} onRegister={login} />;
-  }
+  // Initialize Continuous Structurer with the first connected AI Assistant
+  useEffect(() => {
+    const aiAdapterEntry = integrations.find(i => i.isAIAssistant && i.status === 'connected');
+    if (aiAdapterEntry) {
+      const adapter = ADAPTERS[aiAdapterEntry.id];
+      if (adapter) {
+        structurerService.init(adapter, {
+          onSearchMap: async (query) => {
+             // Basic search implementation for background task
+             return `Background search result for: ${query}`;
+          },
+          onReadPrivate: async (id) => ({ allowed: true, data: "Private data accessed by structurer." }),
+          onCreateFact: async (label, value) => {
+              addNode('root', {
+                id: crypto.randomUUID(),
+                label,
+                value,
+                nodeType: 'fact',
+                source: 'Prism Structurer',
+                sourceDate: new Date().toISOString().split('T')[0],
+                children: []
+              });
+              return true;
+          },
+          onAgentThought: (thought) => console.log("[Prism Structurer]", thought)
+        });
+      }
+    }
+  }, [integrations, addNode]);
+
+
 
   return (
     <div className="h-screen bg-[#F8F9FA] text-[#1A1A1A] dark:bg-[#1A1A1A] dark:text-[#FFFFFF] transition-colors duration-300 overflow-hidden">
@@ -118,12 +144,12 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2">
             {/* AI Chat button */}
             <button
-              onClick={handleOpenAIChat}
+              onClick={handleOpenPrism}
               className="h-10 px-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/[0.04] text-[10px] font-black uppercase tracking-[0.14em] text-gray-700 dark:text-white/70 flex items-center gap-2"
-              title="AI Chat — context auto-injected from UserMap"
+              title="Prism Agent"
             >
               <Bot size={14} className={connectedAICount > 0 ? 'text-violet-500' : ''} />
-              <span className="hidden sm:inline">AI</span>
+              <span className="hidden sm:inline">Prism</span>
               {connectedAICount > 0 && (
                 <span className="h-4 min-w-4 px-1 rounded-full bg-violet-500 text-white text-[9px] font-black flex items-center justify-center">
                   {connectedAICount}
@@ -151,13 +177,7 @@ const App: React.FC = () => {
             >
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-            <button
-              onClick={() => logout()}
-              className="h-10 px-4 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/[0.04] text-[10px] font-black uppercase tracking-[0.18em] text-gray-700 dark:text-white/70 flex items-center gap-2"
-            >
-              <LogOut size={14} />
-              Logout
-            </button>
+
           </div>
         </header>
 
@@ -184,10 +204,16 @@ const App: React.FC = () => {
         onClose={() => setIsIntegrationsPanelOpen(false)}
       />
 
-      <AIChatPanel
-        isOpen={isAIChatOpen}
-        onClose={() => setIsAIChatOpen(false)}
-        contextItems={aiContextItems}
+      <PrismInterface
+        isOpen={isPrismOpen}
+        onClose={() => setIsPrismOpen(false)}
+        tree={userMapTree}
+        onAddNode={addNode}
+      />
+
+      <PrismSetup 
+        isOpen={isPrismSetupVisible}
+        onComplete={handleCompleteSetup}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { SocialArchiveDropzone } from './SocialArchiveDropzone';
 
 interface ContextImportDialogProps {
     isOpen: boolean;
@@ -77,7 +78,14 @@ export const ContextImportDialog: React.FC<ContextImportDialogProps> = ({
                     <div className="p-8 space-y-4">
                         <div className="flex items-center justify-between">
                             <p className="text-[11px] font-black uppercase tracking-[0.12em] text-gray-500 dark:text-white/40">
-                                Step 1: Copy The Prompt, Run It Elsewhere, Then Paste The Results
+                                Option 1: Drop a Social Archive
+                            </p>
+                        </div>
+                        <SocialArchiveDropzone onInsertText={(text) => setPasted(prev => prev + '\n' + text)} />
+
+                        <div className="flex items-center justify-between mt-4">
+                            <p className="text-[11px] font-black uppercase tracking-[0.12em] text-gray-500 dark:text-white/40">
+                                Option 2: Copy Prompt & Run Elsewhere
                             </p>
                             <button
                                 onClick={async () => {
@@ -102,7 +110,7 @@ export const ContextImportDialog: React.FC<ContextImportDialogProps> = ({
                         />
 
                         <p className="text-[11px] font-black uppercase tracking-[0.12em] text-gray-500 dark:text-white/40">
-                            Step 2: Paste Exported Context Below
+                            Results Content / Raw Input
                         </p>
                         <textarea
                             value={pasted}

@@ -23,6 +23,14 @@ export abstract class BaseAdapter {
     /** Unique identifier matching IntegrationId. */
     abstract readonly id: IntegrationId;
 
+    /** 
+     * Whether this integration has the required environment variables (Client IDs, etc.)
+     * configured. Defaults to true for local/API key tools. 
+     */
+    isConfigured(): boolean {
+        return true;
+    }
+
     /**
      * Whether this adapter supports connecting via a Personal Access Token
      * as an alternative to the OAuth popup flow.  Defaults to false.

@@ -64,6 +64,11 @@ interface GitHubEvent {
 
 export class GitHubAdapter extends BaseAdapter {
     readonly id: IntegrationId = 'github';
+
+    override isConfigured(): boolean {
+        return !!CLIENT_ID && !CLIENT_ID.includes('your-');
+    }
+
     override readonly supportsPAT: boolean = true;
 
     buildOAuthUrl(redirectUri: string): string {

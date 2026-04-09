@@ -1,51 +1,6 @@
 import type { PageNode } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
-const IS_DEV = import.meta.env.DEV;
-
-function getAuthToken(): string {
-    const token = sessionStorage.getItem('id_token')
-        || sessionStorage.getItem('auth_token');
-    if (!token) throw new Error('Not authenticated. Please log in.');
-    return token;
-}
-
-function getUserId(): string {
-    const raw = sessionStorage.getItem('currentUser');
-    if (!raw) throw new Error('No user session. Please log in.');
-    return JSON.parse(raw).id;
-}
-
-async function apiRequest<T>(method: 'GET' | 'POST', path: string, body?: object): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: body ? JSON.stringify(body) : undefined
-    });
-
-    if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-            sessionStorage.removeItem('auth_token');
-            sessionStorage.removeItem('id_token');
-            sessionStorage.removeItem('currentUser');
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('id_token');
-            localStorage.removeItem('currentUser');
-            window.location.reload();
-            throw new Error('Authentication expired. Please log in again.');
-        }
-
-        const errorData = await response.json().catch(() => ({ error: response.statusText, message: '' }));
-        const error = errorData.error || `Request failed: ${response.status}`;
-        const detail = errorData.message ? ` — ${errorData.message}` : '';
-        throw new Error(`${error}${detail}`);
-    }
-
-    return response.json() as Promise<T>;
-}
+const LOCAL_STORAGE_KEY = 'usermap_local_tree';
 
 export interface ConsolidateUserMapRequest {
     memories: string[];
@@ -79,82 +34,45 @@ export interface ExtractMemoryRequest {
 
 export async function getUserMapTree(): Promise<UserMapTreeResponse> {
     try {
-        return await apiRequest<UserMapTreeResponse>('GET', '/api/v2/usermap');
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        let tree = null;
+        if (raw) {
+            tree = JSON.parse(raw);
+        }
+        return {
+            userId: 'local',
+            tree,
+            updatedAt: new Date().toISOString()
+        };
     } catch (error: any) {
-        console.error('API: getUserMapTree failed:', error.message);
+        console.error('Local Storage: getUserMapTree failed:', error.message);
         throw error;
     }
 }
 
 export async function saveUserMapTree(tree: PageNode, expectedUpdatedAt?: string | null): Promise<SaveUserMapResponse> {
-    const response = await fetch(`${API_BASE}/api/v2/usermap`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-        },
-        body: JSON.stringify({ tree, expectedUpdatedAt: expectedUpdatedAt || null })
-    });
-
-    if (response.status === 409) {
-        const conflict = await response.json().catch(() => ({}));
-        const err: any = new Error(conflict.message || 'UserMap conflict');
-        err.code = 'CONFLICT';
-        err.currentTree = conflict.currentTree || null;
-        err.currentUpdatedAt = conflict.currentUpdatedAt || null;
-        throw err;
+    try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tree));
+        return {
+            success: true,
+            userId: 'local',
+            updatedAt: new Date().toISOString()
+        };
+    } catch (error: any) {
+        throw new Error('Failed to save to local storage.');
     }
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: response.statusText, message: '' }));
-        const error = errorData.error || `Request failed: ${response.status}`;
-        const detail = errorData.message ? ` — ${errorData.message}` : '';
-        throw new Error(`${error}${detail}`);
-    }
-
-    return response.json() as Promise<SaveUserMapResponse>;
 }
 
+// Stubs for offline features that used to rely on the backend.
+// In a fully offline app, "consolidation" could be done with a local LLM or just direct mapping.
 export async function consolidateUserMap(params: ConsolidateUserMapRequest): Promise<PageNode> {
-    try {
-        return await apiRequest<PageNode>('POST', '/api/v2/usermap/consolidate', {
-            userId: getUserId(),
-            memories: params.memories,
-            existingTree: params.existingTree || null
-        });
-    } catch (error: any) {
-        console.error('API: consolidateUserMap failed:', error.message);
-        throw error;
-    }
+    throw new Error('Consolidation via LLM is not supported when running completely offline without a backend.');
 }
 
 export async function listMemories(limit = 300): Promise<{ memories: MemoryRecord[]; count: number }> {
-    const response = await fetch(`${API_BASE}/api/memory/list?limit=${encodeURIComponent(String(limit))}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-        }
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: response.statusText, message: '' }));
-        const error = errorData.error || `Request failed: ${response.status}`;
-        const detail = errorData.message ? ` — ${errorData.message}` : '';
-        throw new Error(`${error}${detail}`);
-    }
-
-    return response.json() as Promise<{ memories: MemoryRecord[]; count: number }>;
+    return { memories: [], count: 0 };
 }
 
 export async function extractMemory(params: ExtractMemoryRequest): Promise<{ facts: string[] }> {
-    try {
-        return await apiRequest<{ facts: string[] }>('POST', '/api/v2/memory/extract', {
-            userId: getUserId(),
-            messages: params.messages
-        });
-    } catch (error: any) {
-        if (IS_DEV) console.error('API: extractMemory failed:', error.message);
-        throw error;
-    }
+     return { facts: [] };
 }
