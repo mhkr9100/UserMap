@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Network, Plug, ScrollText, Bot, TrendingUp, Loader2 } from 'lucide-react';
 import type { SidebarPage } from './Sidebar';
 import type { PageNode } from '../types';
@@ -101,8 +101,9 @@ function relativeTime(iso: string): string {
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ tree, onNavigate }) => {
-  const totalNodes = countNodes(tree) - 1; // exclude root
-  const totalCategories = countCategories(tree);
+  // Memoize recursive tree operations to prevent unnecessary recalculations on re-render
+  const totalNodes = useMemo(() => countNodes(tree) - 1, [tree]); // exclude root
+  const totalCategories = useMemo(() => countCategories(tree), [tree]);
   const [logCount, setLogCount] = useState<number>(0);
   const [connectorCount, setConnectorCount] = useState<number>(0);
   const [recentLogs, setRecentLogs] = useState<LogEvent[]>([]);
