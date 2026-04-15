@@ -598,6 +598,7 @@ export const PrismAgentPage: React.FC<PrismAgentPageProps> = ({
             <button
               onClick={handleSend}
               disabled={isSending || !input.trim() || !!privacyRequest}
+              aria-label="Send message"
               className="w-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center disabled:opacity-40 transition-colors"
             >
               <Send size={14} />
