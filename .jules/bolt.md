@@ -1,0 +1,3 @@
+## 2024-04-16 - Memoizing Derived State in Graph Visualization
+**Learning:** In React, expensive derived state calculation (like turning a tree into a layout graph) inside a component body blocks the render thread. When that component also listens to high-frequency state updates like `onMouseMove` for panning or scrolling for zooming, unmemoized derived state leads to significant lag.
+**Action:** Always wrap heavy layout computations and map building inside `useMemo` hooks, especially in interactive, rapidly updating components like charts, canvas layers, or pan/zoom interactive graphs.
