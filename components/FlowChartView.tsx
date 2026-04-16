@@ -95,7 +95,10 @@ function nodeColor(nodeType?: string): { fill: string; stroke: string; text: str
 }
 
 export const FlowChartView: React.FC<FlowChartViewProps> = ({ tree }) => {
-    const { nodes, edges } = buildGraph(tree);
+    // ⚡ Bolt Optimization: Memoize expensive O(N) graph calculation.
+    // Impact: Prevents rebuilding the layout tree on every render, ensuring smooth
+    // ~60fps panning and zooming since we are updating `pan`/`zoom` state on mousemove/wheel.
+    const { nodes, edges } = React.useMemo(() => buildGraph(tree), [tree]);
 
     const svgRef = useRef<SVGSVGElement>(null);
     const [pan, setPan] = useState({ x: 20, y: 20 });
@@ -103,8 +106,9 @@ export const FlowChartView: React.FC<FlowChartViewProps> = ({ tree }) => {
     const dragging = useRef(false);
     const lastMouse = useRef({ x: 0, y: 0 });
 
-    // Build a lookup map for edge drawing.
-    const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+    // ⚡ Bolt Optimization: Memoize map creation for edge lookup.
+    // Impact: Avoids re-creating this Map on every frame during pan/zoom interaction.
+    const nodeMap = React.useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
     const onMouseDown = useCallback((e: React.MouseEvent) => {
         dragging.current = true;
