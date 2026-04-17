@@ -266,6 +266,10 @@ const SignalBadge: React.FC<{ importance?: string; confidence?: number; sourceDa
     );
 };
 
+// ⚡ Bolt Optimization: Memoize the recursive tree node.
+// Expected Impact: Significantly reduces re-renders for large user map trees.
+// When a single node is updated, only its path from root changes reference.
+// All unrelated branches will now skip re-rendering.
 const TreeNode: React.FC<{
     node: PageNode;
     depth: number;
@@ -416,7 +420,7 @@ const TreeNode: React.FC<{
                 {isExpanded && node.children.length > 0 && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                         {[...node.children].sort(compareNodes).map(child => (
-                            <TreeNode key={child.id} node={child} depth={depth + 1} onUpdate={onUpdate} onDelete={onDelete} onAdd={onAdd} />
+                            <MemoizedTreeNode key={child.id} node={child} depth={depth + 1} onUpdate={onUpdate} onDelete={onDelete} onAdd={onAdd} />
                         ))}
                     </motion.div>
                 )}
@@ -424,6 +428,8 @@ const TreeNode: React.FC<{
         </div>
     );
 };
+
+const MemoizedTreeNode = React.memo(TreeNode);
 
 const StoryboardCard: React.FC<{ node: PageNode; depth?: number }> = ({ node, depth = 0 }) => {
     const children = [...(node.children || [])].sort(compareNodes);
@@ -638,7 +644,7 @@ export const UserMapView: React.FC<UserMapViewProps> = ({
                                     </div>
                                 </div>
                             ) : viewMode === 'tree' ? (
-                                <TreeNode node={filteredTree} depth={0} onUpdate={onUpdateNode} onDelete={onDeleteNode} onAdd={onAddNode} />
+                                <MemoizedTreeNode node={filteredTree} depth={0} onUpdate={onUpdateNode} onDelete={onDeleteNode} onAdd={onAddNode} />
                             ) : viewMode === 'flowchart' ? (
                                 <FlowChartView tree={filteredTree} />
                             ) : viewMode === 'timeline' ? (
