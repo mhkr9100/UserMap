@@ -20,6 +20,15 @@ const APP_URL = process.env.APP_URL ?? `http://localhost:${PORT}`;
 const app = express();
 
 // Middleware
+
+// Basic security headers
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
 app.use(cors({
   origin: (origin, cb) => {
     // Allow requests from the desktop app, localhost, and no-origin (native clients)
