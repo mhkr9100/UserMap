@@ -62,14 +62,18 @@ const IMPORTANCE_LABEL: Record<UserMapImportance, string> = {
     low: 'Low'
 };
 
+// Cache Intl.DateTimeFormat instance to avoid recreating it in loops.
+// This is significantly faster than calling Date.prototype.toLocaleDateString() directly.
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+});
+
 function formatDate(iso?: string): string {
     if (!iso) return 'Undated';
     try {
-        return new Date(iso).toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        return dateFormatter.format(new Date(iso));
     } catch {
         return iso;
     }
