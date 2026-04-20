@@ -26,8 +26,8 @@ function normalizeImportance(value?: string): UserMapImportance {
     return value === 'high' || value === 'low' ? value : 'medium';
 }
 
-function flattenEntries(node: PageNode, category = 'General Context'): TimelineEntry[] {
-    const entries: TimelineEntry[] = [];
+// ⚡ Bolt: Use accumulator array instead of array spreading to avoid O(N²) performance bottleneck
+function flattenEntries(node: PageNode, category = 'General Context', entries: TimelineEntry[] = []): TimelineEntry[] {
     const cat = node.nodeType === 'category' ? node.label : category;
 
     if (node.nodeType === 'fact' || (!node.nodeType && (node.children ?? []).length === 0)) {
@@ -44,7 +44,7 @@ function flattenEntries(node: PageNode, category = 'General Context'): TimelineE
     }
 
     for (const child of node.children ?? []) {
-        entries.push(...flattenEntries(child, cat));
+        flattenEntries(child, cat, entries);
     }
 
     return entries;
