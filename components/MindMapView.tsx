@@ -113,7 +113,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
           <div className="px-6 py-3 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-[13px] font-black uppercase tracking-widest shadow-lg">
             {node.label || 'My Map'}
           </div>
-          <button
+          <button aria-label="Add category"
             onClick={() => setAddingChild(true)}
             className="absolute -right-3 -top-3 w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center shadow hover:bg-violet-600 transition-colors"
             title="Add category"
@@ -133,8 +133,8 @@ const NodeCard: React.FC<NodeCardProps> = ({
               placeholder="New category name…"
               className="px-3 py-1.5 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black text-[12px] text-gray-900 dark:text-white outline-none focus:border-violet-400 w-44"
             />
-            <button onClick={handleAddChild} className="text-violet-500 hover:text-violet-700"><Check size={14} /></button>
-            <button onClick={() => setAddingChild(false)} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
+            <button aria-label="Save new category" onClick={handleAddChild} className="text-violet-500 hover:text-violet-700"><Check size={14} /></button>
+            <button aria-label="Cancel new category" onClick={() => setAddingChild(false)} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
           </div>
         )}
 
@@ -205,7 +205,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
                 )}
               </div>
               {hasChildren && (
-                <button
+                <button aria-expanded={!isCollapsed} aria-label={isCollapsed ? "Expand node" : "Collapse node"}
                   onClick={() => onToggleCollapse(node.id)}
                   className="shrink-0 text-gray-400 dark:text-white/20 hover:text-gray-700 dark:hover:text-white/60 mt-0.5"
                 >
@@ -216,21 +216,21 @@ const NodeCard: React.FC<NodeCardProps> = ({
 
             {/* Actions (hover) */}
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-              <button
+              <button aria-label="Add child node"
                 onClick={() => setAddingChild(true)}
                 className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-600 dark:text-violet-300 flex items-center justify-center hover:bg-violet-500/40"
                 title="Add child node"
               >
                 <Plus size={10} />
               </button>
-              <button
+              <button aria-label="Edit node"
                 onClick={() => { setEditLabel(node.label); setEditValue(node.value || ''); setEditing(true); }}
                 className="w-5 h-5 rounded-full bg-gray-200/60 dark:bg-white/10 text-gray-600 dark:text-white/50 flex items-center justify-center hover:bg-gray-300/60 dark:hover:bg-white/20"
                 title="Edit node"
               >
                 <Pencil size={9} />
               </button>
-              <button
+              <button aria-label="Delete node"
                 onClick={() => { if (window.confirm(`Delete "${node.label}"?`)) onDeleteNode(node.id); }}
                 className="w-5 h-5 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500/20"
                 title="Delete node"
@@ -354,15 +354,15 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
     >
       {/* Zoom controls */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-1">
-        <button
+        <button aria-label="Zoom in"
           onClick={() => setScale((s) => Math.min(2, s + 0.15))}
           className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 border border-black/10 dark:border-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/20 flex items-center justify-center text-lg font-bold shadow-sm"
         >+</button>
-        <button
+        <button aria-label="Zoom out"
           onClick={() => setScale((s) => Math.max(0.3, s - 0.15))}
           className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 border border-black/10 dark:border-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-50 dark:hover:bg-white/20 flex items-center justify-center text-lg font-bold shadow-sm"
         >−</button>
-        <button
+        <button aria-label="Reset view"
           onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); }}
           className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 border border-black/10 dark:border-white/10 text-[9px] text-gray-500 dark:text-white/40 hover:bg-gray-50 dark:hover:bg-white/20 flex items-center justify-center shadow-sm font-semibold uppercase"
           title="Reset view"
