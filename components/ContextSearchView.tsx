@@ -26,13 +26,13 @@ function normalizeImportance(value?: string): UserMapImportance {
     return value === 'high' || value === 'low' ? value : 'medium';
 }
 
-function flattenAll(node: PageNode, category = 'General Context'): SearchEntry[] {
-    const entries: SearchEntry[] = [];
+// ⚡ Bolt: Use an accumulator to avoid O(N²) array spreading overhead during recursion
+function flattenAll(node: PageNode, category = 'General Context', acc: SearchEntry[] = []): SearchEntry[] {
     const cat = node.nodeType === 'category' ? node.label : category;
 
     if (node.nodeType === 'fact' || (!node.nodeType && (node.children ?? []).length === 0)) {
         if (node.label || node.value?.trim()) {
-            entries.push({
+            acc.push({
                 id: node.id,
                 category: cat,
                 label: node.label,
@@ -44,10 +44,10 @@ function flattenAll(node: PageNode, category = 'General Context'): SearchEntry[]
     }
 
     for (const child of node.children ?? []) {
-        entries.push(...flattenAll(child, cat));
+        flattenAll(child, cat, acc);
     }
 
-    return entries;
+    return acc;
 }
 
 function highlight(text: string, keyword: string): React.ReactNode {

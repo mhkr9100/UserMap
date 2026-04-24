@@ -26,13 +26,13 @@ function normalizeImportance(value?: string): UserMapImportance {
     return value === 'high' || value === 'low' ? value : 'medium';
 }
 
-function flattenEntries(node: PageNode, category = 'General Context'): TimelineEntry[] {
-    const entries: TimelineEntry[] = [];
+// ⚡ Bolt: Use an accumulator to avoid O(N²) array spreading overhead during recursion
+function flattenEntries(node: PageNode, category = 'General Context', acc: TimelineEntry[] = []): TimelineEntry[] {
     const cat = node.nodeType === 'category' ? node.label : category;
 
     if (node.nodeType === 'fact' || (!node.nodeType && (node.children ?? []).length === 0)) {
         if (node.value?.trim()) {
-            entries.push({
+            acc.push({
                 id: node.id,
                 category: cat,
                 label: node.label,
@@ -44,10 +44,10 @@ function flattenEntries(node: PageNode, category = 'General Context'): TimelineE
     }
 
     for (const child of node.children ?? []) {
-        entries.push(...flattenEntries(child, cat));
+        flattenEntries(child, cat, acc);
     }
 
-    return entries;
+    return acc;
 }
 
 const IMPORTANCE_COLOR: Record<UserMapImportance, string> = {
