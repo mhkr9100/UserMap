@@ -1,0 +1,3 @@
+## 2025-04-25 - Icon-Only Buttons Missing aria-label
+**Learning:** Found multiple icon-only buttons throughout the app (`components/UserMapView.tsx`, `components/MindMapView.tsx`) that use standard `title` attributes for tooltips but lack semantic `aria-label`s for screen readers. The `title` attribute is often insufficient or inaccessible for assistive technologies depending on the screen reader verbosity settings.
+**Action:** When creating icon-only buttons, always include `aria-label`. For the current PR, add `aria-label` attributes alongside the `title` attributes on key interaction buttons in `UserMapView.tsx` (Edit, Add child, Delete, Privacy, Importance) to improve accessibility.
