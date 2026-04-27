@@ -309,7 +309,7 @@ const TreeNode: React.FC<{
         <div className={`${depth > 0 ? 'border-l border-black/10 dark:border-white/5' : ''}`} style={{ marginLeft: depth > 0 ? 12 : 0 }}>
             <div className={`group flex items-start gap-2 py-2 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all ${isRoot ? 'mb-2' : ''}`}>
                 {node.children.length > 0 ? (
-                    <button onClick={() => setIsExpanded(!isExpanded)} className="mt-0.5 text-gray-400 dark:text-white/20 hover:text-gray-900 dark:hover:text-white/60 transition-colors w-4 h-4 flex items-center justify-center flex-shrink-0">
+                    <button aria-label={isExpanded ? "Collapse node" : "Expand node"} onClick={() => setIsExpanded(!isExpanded)} className="mt-0.5 text-gray-400 dark:text-white/20 hover:text-gray-900 dark:hover:text-white/60 transition-colors w-4 h-4 flex items-center justify-center flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                         </svg>
