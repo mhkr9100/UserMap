@@ -203,12 +203,16 @@ const EMOTIONAL_MARKERS: RegExp[] = [
   /\*[^*]+\*/i,
 ];
 
+// Pre-compile regular expressions with 'g' to prevent runtime allocation
+// inside the tight loop of scoreMarkers().
+const compileMarkers = (markers: RegExp[]) => markers.map(m => new RegExp(m.source, 'gi'));
+
 const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
-  decision: DECISION_MARKERS,
-  preference: PREFERENCE_MARKERS,
-  milestone: MILESTONE_MARKERS,
-  problem: PROBLEM_MARKERS,
-  emotional: EMOTIONAL_MARKERS,
+  decision: compileMarkers(DECISION_MARKERS),
+  preference: compileMarkers(PREFERENCE_MARKERS),
+  milestone: compileMarkers(MILESTONE_MARKERS),
+  problem: compileMarkers(PROBLEM_MARKERS),
+  emotional: compileMarkers(EMOTIONAL_MARKERS),
 };
 
 // ---------------------------------------------------------------------------
@@ -311,9 +315,10 @@ function extractProse(text: string): string {
 
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
+  // Markers are pre-compiled with 'gi', avoiding the cost of instantiating
+  // new RegExps and calling toLowerCase() on every check.
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
