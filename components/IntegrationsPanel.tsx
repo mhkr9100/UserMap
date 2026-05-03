@@ -362,7 +362,7 @@ export const IntegrationsPanel: React.FC<IntegrationsPanelProps> = ({ isOpen, on
                             <button
                                 onClick={onClose}
                                 className="h-8 w-8 rounded-lg border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                title="Close"
+                                title="Close" aria-label="Close panel"
                             >
                                 <X size={14} />
                             </button>
