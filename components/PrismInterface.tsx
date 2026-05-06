@@ -215,7 +215,7 @@ export const PrismInterface: React.FC<PrismInterfaceProps> = ({ isOpen, onClose,
                                     <div className="text-[10px] text-gray-500 dark:text-white/40">Autonomous Context Engineer</div>
                                 </div>
                             </div>
-                            <button onClick={onClose} className="h-8 w-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors">
+                            <button onClick={onClose} className="h-8 w-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors" aria-label="Close">
                                 <X size={14} />
                             </button>
                         </div>

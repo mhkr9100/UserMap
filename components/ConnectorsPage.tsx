@@ -147,7 +147,7 @@ const ConfigureModal: React.FC<ConfigureModalProps> = ({ connector, onClose, onS
             <h2 className="text-[14px] font-black text-gray-900 dark:text-white">Configure {meta.label}</h2>
             <p className="text-[11px] text-gray-400 dark:text-white/30">{isPull ? 'Pull connector' : 'Push connector'}</p>
           </div>
-          <button onClick={onClose} className="ml-auto text-gray-400 hover:text-gray-700 dark:hover:text-white"><X size={16} /></button>
+          <button onClick={onClose} className="ml-auto text-gray-400 hover:text-gray-700 dark:hover:text-white" aria-label="Close"><X size={16} /></button>
         </div>
 
         {isPull ? (
