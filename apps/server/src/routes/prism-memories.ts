@@ -187,11 +187,14 @@ router.get('/memories', (req: Request, res: Response) => {
     offset: offsetStr = '0',
   } = req.query as Record<string, string | undefined>;
 
-  const limit = Math.min(parseInt(limitStr ?? '50', 10) || 50, 200);
-  const offset = parseInt(offsetStr ?? '0', 10) || 0;
+  const limit = Math.min(parseInt(typeof limitStr === 'string' ? limitStr : '50', 10) || 50, 200);
+  const offset = parseInt(typeof offsetStr === 'string' ? offsetStr : '0', 10) || 0;
+
+  const isQStr = typeof q === 'string';
+  const isCategoryStr = typeof category === 'string';
 
   // FTS path (MemPalace L3 deep search style)
-  if (q && q.trim()) {
+  if (isQStr && q.trim()) {
     let rows: MemoryUnitRow[] = [];
     try {
       rows = db.prepare(`
@@ -199,10 +202,10 @@ router.get('/memories', (req: Request, res: Response) => {
         FROM memory_units_fts fts
         JOIN prism_memory_units m ON m.id = fts.rowid
         WHERE memory_units_fts MATCH ?
-        ${category ? 'AND m.category = ?' : ''}
+        ${isCategoryStr && category ? 'AND m.category = ?' : ''}
         LIMIT ? OFFSET ?
       `).all(
-        ...[q.trim(), ...(category ? [category] : []), limit, offset]
+        ...[q.trim(), ...(isCategoryStr && category ? [category] : []), limit, offset]
       ) as MemoryUnitRow[];
     } catch {
       rows = [];
@@ -213,9 +216,9 @@ router.get('/memories', (req: Request, res: Response) => {
   // Filtered list path
   const conditions: string[] = [];
   const params: (string | number)[] = [];
-  if (category) { conditions.push('category = ?'); params.push(category); }
-  if (source_tool) { conditions.push('source_tool = ?'); params.push(source_tool); }
-  if (conflict_only === 'true') { conditions.push('conflict_flag = 1'); }
+  if (isCategoryStr && category) { conditions.push('category = ?'); params.push(category); }
+  if (typeof source_tool === 'string' && source_tool) { conditions.push('source_tool = ?'); params.push(source_tool); }
+  if (typeof conflict_only === 'string' && conflict_only === 'true') { conditions.push('conflict_flag = 1'); }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   const countRow = db.prepare(
