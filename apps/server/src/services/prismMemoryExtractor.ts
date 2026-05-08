@@ -203,12 +203,15 @@ const EMOTIONAL_MARKERS: RegExp[] = [
   /\*[^*]+\*/i,
 ];
 
-const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
-  decision: DECISION_MARKERS,
-  preference: PREFERENCE_MARKERS,
-  milestone: MILESTONE_MARKERS,
-  problem: PROBLEM_MARKERS,
-  emotional: EMOTIONAL_MARKERS,
+// ---------------------------------------------------------------------------
+// Pre-compile markers with 'g' and 'i' flags for performance
+// ---------------------------------------------------------------------------
+const COMPILED_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
+  decision: DECISION_MARKERS.map(r => new RegExp(r.source, 'gi')),
+  preference: PREFERENCE_MARKERS.map(r => new RegExp(r.source, 'gi')),
+  milestone: MILESTONE_MARKERS.map(r => new RegExp(r.source, 'gi')),
+  problem: PROBLEM_MARKERS.map(r => new RegExp(r.source, 'gi')),
+  emotional: EMOTIONAL_MARKERS.map(r => new RegExp(r.source, 'gi')),
 };
 
 // ---------------------------------------------------------------------------
@@ -311,9 +314,8 @@ function extractProse(text: string): string {
 
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
@@ -448,7 +450,7 @@ export function extractMemories(text: string, minConfidence = 0.3): ExtractedMem
 
     // Score against all categories
     const scores: Partial<Record<Exclude<MemoryCategory, 'general'>, number>> = {};
-    for (const [cat, markers] of Object.entries(ALL_MARKERS) as [Exclude<MemoryCategory, 'general'>, RegExp[]][]) {
+    for (const [cat, markers] of Object.entries(COMPILED_MARKERS) as [Exclude<MemoryCategory, 'general'>, RegExp[]][]) {
       const score = scoreMarkers(prose, markers);
       if (score > 0) scores[cat] = score;
     }

@@ -1,0 +1,3 @@
+## 2024-05-18 - Pre-compile dynamic global RegExps
+**Learning:** Instantiating `new RegExp(pattern, 'gi')` inside loops is a huge performance trap, particularly when coupled with `text.toLowerCase()`. String allocations and dynamic RegExp engine compilations easily dominate CPU time. Re-using global RegExp instances using `String.prototype.match()` is safe because it automatically resets the internal `lastIndex` counter, avoiding state bugs.
+**Action:** Always pre-compile `RegExp` objects with 'g' and 'i' flags for hot text-parsing functions. Use `text.match(regex)` rather than allocating copies of strings to lowercase them.
