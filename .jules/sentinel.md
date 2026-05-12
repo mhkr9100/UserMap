@@ -1,0 +1,4 @@
+## 2024-05-12 - HTTP Parameter Pollution (HPP) in Express.js
+**Vulnerability:** Unsafe casting and blind method calls on `req.query` properties (e.g., `q.trim()`). When clients send duplicate query parameters (e.g., `?q=a&q=b`), Express parses them as an array. Calling `.trim()` on an array causes a `TypeError`, leading to Unhandled Exception Denial of Service (DoS) and application crashes.
+**Learning:** Express `req.query` properties can be strings, arrays, or objects depending on the input. Blindly casting `req.query` using TypeScript `as Record<string, string>` bypasses compiler checks but does not change the runtime type.
+**Prevention:** Always explicitly validate the runtime type of query parameters using `typeof param === 'string'` before using string methods or casting to string.
