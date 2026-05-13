@@ -1,0 +1,3 @@
+## 2024-05-19 - O(N²) array spreading in recursive tree flattening
+**Learning:** Found an anti-pattern in `components/ContextSearchView.tsx` and `components/TimelineView.tsx` where recursive tree flattening used `entries.push(...flatten(child))`. This creates an O(N²) bottleneck due to intermediate array allocation and copying at every level of the recursive call stack.
+**Action:** Replaced the array spreading with an O(N) accumulator array parameter passed down the recursive chain (`flatten(node, entries = [])`). This avoids unnecessary memory allocations and prevents potential Maximum Call Stack Size Exceeded errors for deeply nested UserMap trees.
