@@ -45,8 +45,10 @@ router.get('/', (req: Request, res: Response) => {
   if (from) { conditions.push('created_at >= ?'); params.push(from); }
   if (to) { conditions.push('created_at <= ?'); params.push(to); }
   if (search) {
-    conditions.push('(summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?)');
-    const like = `%${search}%`;
+    if (typeof search !== 'string') return res.status(400).json({ error: 'Invalid search parameter' });
+    conditions.push(`(summary LIKE ? ESCAPE '\\' OR object_ref LIKE ? ESCAPE '\\' OR event_type LIKE ? ESCAPE '\\')`);
+    const escapedSearch = search.replace(/[%_\\\\]/g, '\\\\$&');
+    const like = `%${escapedSearch}%`;
     params.push(like, like, like);
   }
 
