@@ -73,11 +73,12 @@ const App: React.FC = () => {
           <div className="flex items-center gap-3">
             <StatusIndicator status={serverStatus} connections={statusData?.connections} />
             <button
+              aria-label="Refresh connection status"
               onClick={() => { void refresh(); }}
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-colors"
               title="Refresh"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={14} className={serverStatus === 'loading' ? 'animate-spin text-indigo-600' : 'transition-transform'} />
             </button>
           </div>
         </div>
