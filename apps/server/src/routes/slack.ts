@@ -37,10 +37,12 @@ router.post('/', (_req: Request, res: Response) => {
 
 // GET /api/connect/slack/callback — handle OAuth callback
 router.get('/callback', async (req: Request, res: Response) => {
-  const { code, state, error } = req.query as Record<string, string | undefined>;
+  const code = typeof req.query.code === 'string' ? req.query.code : undefined;
+  const state = typeof req.query.state === 'string' ? req.query.state : undefined;
+  const error = typeof req.query.error === 'string' ? req.query.error : undefined;
 
   if (error) {
-    return res.status(400).send(renderPage('Connection Cancelled', `<p>Slack access was denied: ${escapeHtml(error ?? '')}.</p><p><a href="javascript:window.close()">Close this window</a></p>`));
+    return res.status(400).send(renderPage('Connection Cancelled', `<p>Slack access was denied: ${escapeHtml(error)}.</p><p><a href="javascript:window.close()">Close this window</a></p>`));
   }
 
   if (!code || typeof code !== 'string') {

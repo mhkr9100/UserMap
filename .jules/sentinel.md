@@ -1,0 +1,4 @@
+## 2024-10-24 - Fix HTTP Parameter Pollution causing Type Crashes and DoS
+**Vulnerability:** Express `req.query` variables were cast using `as Record<string, string>`, but parameters can be passed as arrays or objects by attackers (e.g., `?limit=10&limit=20`). This passed unexpected types into SQLite (`NaN` from `parseInt` or array objects in SQL injections), causing the application to crash or behave unexpectedly.
+**Learning:** Blindly casting Express query objects using TypeScript `as` ignores runtime reality. Node.js `parseInt` of arrays results in `NaN`, and SQLite `LIMIT NaN` throws a hard crash error, leading to a potential Denial of Service.
+**Prevention:** Always explicitly validate input types using `typeof req.query.foo === 'string'` before using them. When dealing with numeric queries like limit/offset, provide safe default fallbacks using `Number.isNaN()` rather than relying on default parameter values.

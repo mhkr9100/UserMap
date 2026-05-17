@@ -23,17 +23,19 @@ export interface LogRecord {
  */
 router.get('/', (req: Request, res: Response) => {
   const db = getDb();
-  const {
-    event_type,
-    source_tool,
-    actor,
-    severity,
-    from,
-    to,
-    search,
-    limit = '100',
-    offset = '0',
-  } = req.query as Record<string, string>;
+  const getStr = (key: string, def?: string): string | undefined => {
+    const val = req.query[key];
+    return typeof val === 'string' ? val : def;
+  };
+  const event_type = getStr('event_type');
+  const source_tool = getStr('source_tool');
+  const actor = getStr('actor');
+  const severity = getStr('severity');
+  const from = getStr('from');
+  const to = getStr('to');
+  const search = getStr('search');
+  const limitStr = getStr('limit', '100') as string;
+  const offsetStr = getStr('offset', '0') as string;
 
   const conditions: string[] = [];
   const params: unknown[] = [];
@@ -51,9 +53,11 @@ router.get('/', (req: Request, res: Response) => {
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const parsedLimit = parseInt(limitStr, 10);
+  const parsedOffset = parseInt(offsetStr, 10);
   const rows = db
     .prepare(`SELECT * FROM logs ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
-    .all(...params, parseInt(limit, 10), parseInt(offset, 10));
+    .all(...params, Number.isNaN(parsedLimit) ? 100 : parsedLimit, Number.isNaN(parsedOffset) ? 0 : parsedOffset);
 
   const total = (db
     .prepare(`SELECT COUNT(*) as c FROM logs ${where}`)
