@@ -77,13 +77,12 @@ export async function queryContext(
     // Flatten and sort by date descending (newest first).
     // Apply a fixed maximum cap to prevent unexpectedly large payloads when
     // many tools are connected.
+    // ⚡ Bolt: Schwartzian transform (map-sort-map) to prevent O(N log N) redundant date parsing
     const allItems: ToolContextItem[] = resultArrays
         .flat()
-        .sort((a, b) => {
-            const dateA = a.date ? new Date(a.date).getTime() : 0;
-            const dateB = b.date ? new Date(b.date).getTime() : 0;
-            return dateB - dateA;
-        })
+        .map(item => ({ item, time: item.date ? new Date(item.date).getTime() : 0 }))
+        .sort((a, b) => b.time - a.time)
+        .map(({ item }) => item)
         .slice(0, MAX_RESULTS);
 
     return { query, results: allItems };
