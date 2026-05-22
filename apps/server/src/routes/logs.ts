@@ -33,27 +33,32 @@ router.get('/', (req: Request, res: Response) => {
     search,
     limit = '100',
     offset = '0',
-  } = req.query as Record<string, string>;
+  } = req.query;
 
   const conditions: string[] = [];
   const params: unknown[] = [];
 
-  if (event_type) { conditions.push('event_type = ?'); params.push(event_type); }
-  if (source_tool) { conditions.push('source_tool = ?'); params.push(source_tool); }
-  if (actor) { conditions.push('actor = ?'); params.push(actor); }
-  if (severity) { conditions.push('severity = ?'); params.push(severity); }
-  if (from) { conditions.push('created_at >= ?'); params.push(from); }
-  if (to) { conditions.push('created_at <= ?'); params.push(to); }
-  if (search) {
-    conditions.push('(summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?)');
-    const like = `%${search}%`;
+  if (typeof event_type === 'string') { conditions.push('event_type = ?'); params.push(event_type); }
+  if (typeof source_tool === 'string') { conditions.push('source_tool = ?'); params.push(source_tool); }
+  if (typeof actor === 'string') { conditions.push('actor = ?'); params.push(actor); }
+  if (typeof severity === 'string') { conditions.push('severity = ?'); params.push(severity); }
+  if (typeof from === 'string') { conditions.push('created_at >= ?'); params.push(from); }
+  if (typeof to === 'string') { conditions.push('created_at <= ?'); params.push(to); }
+  if (typeof search === 'string') {
+    conditions.push("(summary LIKE ? ESCAPE '\\' OR object_ref LIKE ? ESCAPE '\\' OR event_type LIKE ? ESCAPE '\\')");
+    const like = `%${search.replace(/[%_\\]/g, '\\$&')}%`;
     params.push(like, like, like);
   }
+
+  const parsedLimit = typeof limit === 'string' ? parseInt(limit, 10) : 100;
+  const parsedOffset = typeof offset === 'string' ? parseInt(offset, 10) : 0;
+  const safeLimit = Number.isNaN(parsedLimit) ? 100 : parsedLimit;
+  const safeOffset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   const rows = db
     .prepare(`SELECT * FROM logs ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
-    .all(...params, parseInt(limit, 10), parseInt(offset, 10));
+    .all(...params, safeLimit, safeOffset);
 
   const total = (db
     .prepare(`SELECT COUNT(*) as c FROM logs ${where}`)
