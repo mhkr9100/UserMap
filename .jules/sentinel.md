@@ -1,0 +1,4 @@
+## 2025-02-28 - HTTP Parameter Pollution causing DoS and SQL Logic Errors
+**Vulnerability:** Express `req.query` properties were blindly cast as strings using `Record<string, string>`. However, Express parses multiple parameters of the same name (e.g., `?q=1&q=2`) as an Array. Passing an Array to `.trim()` causes a runtime crash (DoS). Passing an Array to SQLite parameterized queries (`LIKE ?`) serializes to comma-separated values (`"%1,2%"`), leading to logic errors or exposing internal query behaviors.
+**Learning:** Type casting (`as Record<...>`) in TypeScript does not provide runtime type safety for incoming HTTP requests.
+**Prevention:** Always explicitly validate that query parameters are strings using `typeof param === 'string'` before using them in string methods or database queries. If an array is possible, safely extract the first element or fall back to a default value.
