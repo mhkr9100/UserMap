@@ -76,6 +76,7 @@ const App: React.FC = () => {
               onClick={() => { void refresh(); }}
               className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
               title="Refresh"
+              aria-label="Refresh connections"
             >
               <RefreshCw size={14} />
             </button>
