@@ -1,0 +1,3 @@
+## 2026-05-25 - Precompile RegExs to optimize scoreMarkers loops
+**Learning:** The memory extractor iterates through multiple regular expressions to score textual markers, repeatedly dynamically instantiating RegExps and lowercasing full texts. While individually minor, when applied in multiple tight loops, dynamic RegExp allocations and the cost of the g/i flags are expensive and cause excessive object allocations over time.
+**Action:** Always precompile RegEx objects that are used repeatedly in text-scoring loops inside functions (especially when iterating arrays of text markers). This shifts the compilation to module-load time and enables optimal `String.prototype.match()` execution without `.toLowerCase()` overheads.

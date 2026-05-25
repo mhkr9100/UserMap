@@ -204,11 +204,11 @@ const EMOTIONAL_MARKERS: RegExp[] = [
 ];
 
 const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
-  decision: DECISION_MARKERS,
-  preference: PREFERENCE_MARKERS,
-  milestone: MILESTONE_MARKERS,
-  problem: PROBLEM_MARKERS,
-  emotional: EMOTIONAL_MARKERS,
+  decision: DECISION_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  preference: PREFERENCE_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  milestone: MILESTONE_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  problem: PROBLEM_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  emotional: EMOTIONAL_MARKERS.map(m => new RegExp(m.source, 'gi')),
 };
 
 // ---------------------------------------------------------------------------
@@ -310,10 +310,11 @@ function extractProse(text: string): string {
 // ---------------------------------------------------------------------------
 
 function scoreMarkers(text: string, markers: RegExp[]): number {
+  // ⚡ Bolt Optimization: Avoid dynamic RegExp instantiation and text.toLowerCase() string cloning
+  // in tight scoring loops. Markers are pre-compiled with 'gi' flags in ALL_MARKERS.
   let score = 0;
-  const textLower = text.toLowerCase();
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
