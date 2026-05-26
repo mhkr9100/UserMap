@@ -309,11 +309,20 @@ function extractProse(text: string): string {
 // Scoring
 // ---------------------------------------------------------------------------
 
+// ⚡ Bolt Optimization: Pre-compile regexes to avoid dynamic instantiation and
+// text.toLowerCase() cloning inside tight scoring loops. String.prototype.match()
+// with a global regex safely handles lastIndex state internally.
+const COMPILED_MARKERS = new WeakMap<RegExp, RegExp>();
+
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    let compiled = COMPILED_MARKERS.get(m);
+    if (!compiled) {
+      compiled = new RegExp(m.source, 'gi');
+      COMPILED_MARKERS.set(m, compiled);
+    }
+    const matches = text.match(compiled);
     if (matches) score += matches.length;
   }
   return score;
