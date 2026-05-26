@@ -23,17 +23,20 @@ export interface LogRecord {
  */
 router.get('/', (req: Request, res: Response) => {
   const db = getDb();
-  const {
-    event_type,
-    source_tool,
-    actor,
-    severity,
-    from,
-    to,
-    search,
-    limit = '100',
-    offset = '0',
-  } = req.query as Record<string, string>;
+  const q = req.query;
+  const event_type = typeof q.event_type === 'string' ? q.event_type : undefined;
+  const source_tool = typeof q.source_tool === 'string' ? q.source_tool : undefined;
+  const actor = typeof q.actor === 'string' ? q.actor : undefined;
+  const severity = typeof q.severity === 'string' ? q.severity : undefined;
+  const from = typeof q.from === 'string' ? q.from : undefined;
+  const to = typeof q.to === 'string' ? q.to : undefined;
+  const search = typeof q.search === 'string' ? q.search : undefined;
+
+  const parsedLimit = parseInt(typeof q.limit === 'string' ? q.limit : '100', 10);
+  const limit = Number.isNaN(parsedLimit) ? 100 : parsedLimit;
+
+  const parsedOffset = parseInt(typeof q.offset === 'string' ? q.offset : '0', 10);
+  const offset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
 
   const conditions: string[] = [];
   const params: unknown[] = [];
@@ -45,15 +48,16 @@ router.get('/', (req: Request, res: Response) => {
   if (from) { conditions.push('created_at >= ?'); params.push(from); }
   if (to) { conditions.push('created_at <= ?'); params.push(to); }
   if (search) {
-    conditions.push('(summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?)');
-    const like = `%${search}%`;
+    conditions.push(`(summary LIKE ? ESCAPE '\\' OR object_ref LIKE ? ESCAPE '\\' OR event_type LIKE ? ESCAPE '\\')`);
+    const escapedSearch = search.replace(/[%_\\]/g, '\\$&');
+    const like = `%${escapedSearch}%`;
     params.push(like, like, like);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   const rows = db
     .prepare(`SELECT * FROM logs ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
-    .all(...params, parseInt(limit, 10), parseInt(offset, 10));
+    .all(...params, limit, offset);
 
   const total = (db
     .prepare(`SELECT COUNT(*) as c FROM logs ${where}`)
