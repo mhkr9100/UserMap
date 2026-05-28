@@ -211,6 +211,15 @@ const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
   emotional: EMOTIONAL_MARKERS,
 };
 
+// ⚡ Bolt Optimization: Pre-compile regular expressions with 'g' and 'i' flags
+// to avoid dynamic instantiation inside tight scoring loops.
+const COMPILED_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = Object.fromEntries(
+  Object.entries(ALL_MARKERS).map(([cat, markers]) => [
+    cat,
+    markers.map((m) => new RegExp(m.source, 'gi')),
+  ])
+) as Record<Exclude<MemoryCategory, 'general'>, RegExp[]>;
+
 // ---------------------------------------------------------------------------
 // Sentiment helpers (from MemPalace disambiguation logic)
 // ---------------------------------------------------------------------------
@@ -311,9 +320,10 @@ function extractProse(text: string): string {
 
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
+  // ⚡ Bolt Optimization: Removed text.toLowerCase() and dynamic RegExp allocation.
+  // We use the pre-compiled markers containing both 'g' and 'i' flags.
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
@@ -448,7 +458,7 @@ export function extractMemories(text: string, minConfidence = 0.3): ExtractedMem
 
     // Score against all categories
     const scores: Partial<Record<Exclude<MemoryCategory, 'general'>, number>> = {};
-    for (const [cat, markers] of Object.entries(ALL_MARKERS) as [Exclude<MemoryCategory, 'general'>, RegExp[]][]) {
+    for (const [cat, markers] of Object.entries(COMPILED_MARKERS) as [Exclude<MemoryCategory, 'general'>, RegExp[]][]) {
       const score = scoreMarkers(prose, markers);
       if (score > 0) scores[cat] = score;
     }
