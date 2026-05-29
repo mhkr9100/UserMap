@@ -44,9 +44,12 @@ router.get('/', (req: Request, res: Response) => {
   if (severity) { conditions.push('severity = ?'); params.push(severity); }
   if (from) { conditions.push('created_at >= ?'); params.push(from); }
   if (to) { conditions.push('created_at <= ?'); params.push(to); }
-  if (search) {
-    conditions.push('(summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?)');
-    const like = `%${search}%`;
+  // Security Fix (Sentinel): Prevent HTTP Parameter Pollution arrays and escape wildcards
+  // to avoid SQLite LIKE injection/DoS vectors.
+  if (search && typeof search === 'string') {
+    conditions.push('(summary LIKE ? ESCAPE \'\\\' OR object_ref LIKE ? ESCAPE \'\\\' OR event_type LIKE ? ESCAPE \'\\\')');
+    const escapedSearch = search.replace(/[%_\\]/g, '\\$&');
+    const like = `%${escapedSearch}%`;
     params.push(like, like, like);
   }
 
