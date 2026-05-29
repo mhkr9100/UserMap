@@ -143,8 +143,10 @@ const ImportPanel: React.FC<{
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/5">
+        <div role="tablist" className="flex gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/5">
           <button
+            role="tab"
+            aria-selected={tab === 'file'}
             onClick={() => { setTab('file'); setStatus(null); }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold transition-colors ${
               tab === 'file'
@@ -155,6 +157,8 @@ const ImportPanel: React.FC<{
             <FileText size={12} /> File Upload
           </button>
           <button
+            role="tab"
+            aria-selected={tab === 'text'}
             onClick={() => { setTab('text'); setStatus(null); }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[11px] font-semibold transition-colors ${
               tab === 'text'

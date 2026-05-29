@@ -530,7 +530,7 @@ export const ConnectorsPage: React.FC<ConnectorsPageProps> = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.04] w-fit">
+      <div role="tablist" className="flex gap-1 p-1 rounded-xl bg-black/[0.04] dark:bg-white/[0.04] w-fit">
         {([
           ['pull', 'Pull', <ArrowDown key="d" size={13} />],
           ['push', 'Push', <ArrowUp key="u" size={13} />],
@@ -538,6 +538,8 @@ export const ConnectorsPage: React.FC<ConnectorsPageProps> = () => {
         ] as const).map(([id, label, icon]) => (
           <button
             key={id}
+            role="tab"
+            aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${tab === id ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-white/40 hover:text-gray-700 dark:hover:text-white/60'}`}
           >
