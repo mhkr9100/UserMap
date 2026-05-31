@@ -1,0 +1,4 @@
+## 2024-05-31 - HTTP Parameter Pollution causing DoS via SQLite Bind Parameters
+**Vulnerability:** HTTP Parameter Pollution causing Denial of Service in Express endpoints when user supplies array query arguments.
+**Learning:** `req.query` in Express can yield arrays when the same key is passed multiple times in the query string (e.g. `?param=1&param=2`). Casting it `as Record<string, string>` disables type safety but at runtime the variable remains an array. When this array is subsequently passed into `better-sqlite3` execution commands (`.run()`, `.all()`, etc.), the library dynamically unpacks the array. This leads to a `Too many parameter values were provided` crash if the SQL string was expecting a scalar, crashing the node event loop.
+**Prevention:** Validate input explicitly at the edge of the application route: e.g. `typeof req.query.param === 'string' ? req.query.param : undefined`. Avoid blind type coercions when consuming Express payloads.

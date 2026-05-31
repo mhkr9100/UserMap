@@ -23,17 +23,16 @@ export interface LogRecord {
  */
 router.get('/', (req: Request, res: Response) => {
   const db = getDb();
-  const {
-    event_type,
-    source_tool,
-    actor,
-    severity,
-    from,
-    to,
-    search,
-    limit = '100',
-    offset = '0',
-  } = req.query as Record<string, string>;
+  const q = req.query as Record<string, any>;
+  const event_type = typeof q.event_type === 'string' ? q.event_type : undefined;
+  const source_tool = typeof q.source_tool === 'string' ? q.source_tool : undefined;
+  const actor = typeof q.actor === 'string' ? q.actor : undefined;
+  const severity = typeof q.severity === 'string' ? q.severity : undefined;
+  const from = typeof q.from === 'string' ? q.from : undefined;
+  const to = typeof q.to === 'string' ? q.to : undefined;
+  const search = typeof q.search === 'string' ? q.search : undefined;
+  const limit = typeof q.limit === 'string' ? q.limit : '100';
+  const offset = typeof q.offset === 'string' ? q.offset : '0';
 
   const conditions: string[] = [];
   const params: unknown[] = [];

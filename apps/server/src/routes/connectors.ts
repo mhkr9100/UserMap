@@ -25,7 +25,8 @@ export interface ConnectorConfig {
  */
 router.get('/', (req: Request, res: Response) => {
   const db = getDb();
-  const { direction } = req.query as { direction?: string };
+  const q = req.query as Record<string, any>;
+  const direction = typeof q.direction === 'string' ? q.direction : undefined;
   const rows = direction
     ? db.prepare('SELECT * FROM connector_config WHERE direction = ? ORDER BY name').all(direction)
     : db.prepare('SELECT * FROM connector_config ORDER BY direction, name').all();
