@@ -309,11 +309,19 @@ function extractProse(text: string): string {
 // Scoring
 // ---------------------------------------------------------------------------
 
+// ⚡ Bolt Optimization: Cache pre-compiled regular expressions and eliminate redundant string allocations.
+const COMPILED_MARKERS = new WeakMap<RegExp[], RegExp[]>();
+
 function scoreMarkers(text: string, markers: RegExp[]): number {
+  let compiled = COMPILED_MARKERS.get(markers);
+  if (!compiled) {
+    compiled = markers.map(m => new RegExp(m.source, 'gi'));
+    COMPILED_MARKERS.set(markers, compiled);
+  }
+
   let score = 0;
-  const textLower = text.toLowerCase();
-  for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+  for (const m of compiled) {
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;

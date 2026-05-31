@@ -1,0 +1,3 @@
+## 2024-05-31 - Regex compilation overhead inside loop
+**Learning:** Instantiating `new RegExp(m.source, 'gi')` inside a tight loop within text-scoring functions causes significant CPU overhead and memory allocations. Furthermore, repeatedly cloning the text with `text.toLowerCase()` is redundant when the regular expression already uses the `'i'` flag for case-insensitive matching.
+**Action:** Avoid dynamic RegExp instantiation and redundant string allocation. Pre-compile regular expressions with 'g' and 'i' flags and cache them, then use `String.prototype.match()` on the original string to prevent excessive memory allocation and CPU overhead.
