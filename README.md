@@ -7,7 +7,7 @@
 UserMap is a **local-first Personal Context OS** that:
 - Continuously ingests data from your tools (Slack, Instagram, Facebook, etc.)
 - Uses **Prism Agent** to classify and structure everything into your personal knowledge graph
-- Lets you explore and edit your data visually as a **MindMap** in Data Studio
+- Lets you explore and edit your data visually in Data Studio with **MindMap, Tree, Flow Chart, and List** views
 - Pushes structured context to automation platforms (n8n, Make, custom webhooks)
 - Logs every lifecycle event end-to-end in the **Logs** timeline
 
@@ -21,20 +21,22 @@ UserMap is a **local-first Personal Context OS** that:
 Full app redesign with persistent left sidebar:
 - **Dashboard** — overview stats, pipeline explanation, recent activity
 - **Context Search** — full-text keyword + filter search across all your data
-- **Data Studio** — MindMap visualization with full CRUD (Tree/Flow/List planned for future)
+- **Data Studio** — MindMap visualization with full CRUD plus Tree, Flow Chart, and List views
 - **Connectors** — Pull into UserMap + Push from UserMap (subdivided)
 - **Prism Agent** — Always-on AI pipeline status, chat, resilience controls
 - **Logs** — End-to-end lifecycle event timeline with filters
 - **Docs** — In-app help, setup guides, architecture reference
 
-### 2. Data Studio — MindMap Only (NotebookLM-style)
-Your entire knowledge graph visualized as a radial, interactive MindMap:
+### 2. Data Studio — Multi-View Workspace
+Your entire knowledge graph visualized through complementary views:
 - **Scroll** to zoom, **drag** to pan
 - **Hover** any node to reveal Edit, Add child, and Delete actions
 - **Click** category nodes to expand/collapse branches
 - **Full CRUD**: create categories, edit node labels/values, delete nodes/edges
 - Collapse state **persisted in localStorage** for stable UX across sessions
-- Tree, Flow, and List views are future scope (clearly labeled in UI)
+- **Tree View** for hierarchy navigation with expand/collapse
+- **Flow Chart View** for directed parent/child graph traversal
+- **List View** for searchable, sortable tabular inspection
 
 ### 3. Logs — End-to-End Lifecycle Timeline
 Every event in your personal context OS is tracked:
@@ -192,7 +194,7 @@ POST https://your-endpoint.com/webhook
 ```
 Browser (React + Vite)
   └── Left Sidebar (Dashboard / Context Search / Data Studio / Connectors / Prism / Logs / Docs)
-       ├── Data Studio → MindMapView (CRUD on PageNode tree, localStorage collapse)
+       ├── Data Studio → MindMapView (CRUD) + TreeView + FlowChartView + ListView
        ├── Connectors → Pull (Slack/Instagram/Facebook) | Push (n8n/Make/Webhook)
        ├── Prism Agent → Always-on pipeline + chat interface
        └── Logs → Event timeline (connector.pull / prism.classify / user.crud / push.webhook)
@@ -233,9 +235,9 @@ Storage
 | Logs: Lifecycle timeline | ✅ Phase 5 | Filters, search, before/after detail |
 | Prism Agent pipeline | ✅ Phase 5 | Always-on, checkpoint-resilient |
 | Multi-DB (SQLite + Chroma) | ✅ Phase 5 | Canonical + async vector |
-| Tree View | 🔜 Future scope | Hierarchical tree visualization |
-| Flow Chart View | 🔜 Future scope | Directed graph visualization |
-| List View | 🔜 Future scope | Tabular data view |
+| Tree View | ✅ Phase 5 | Hierarchical tree visualization with expand/collapse |
+| Flow Chart View | ✅ Phase 5 | Directed graph visualization with pan/zoom |
+| List View | ✅ Phase 5 | Searchable, sortable tabular data view |
 | Enterprise RBAC | 🔜 Planned | Role-based visibility |
 | Cross-Device Sync | 🔜 Planned | P2P local sync |
 
@@ -252,4 +254,3 @@ Storage
 ---
 
 Developed with 💜 for the **Quantified Self** and **Agentic Future**.
-

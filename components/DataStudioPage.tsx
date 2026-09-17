@@ -1,6 +1,9 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Network, Upload, X, FileText, CheckCircle, AlertCircle, Type } from 'lucide-react';
 import { MindMapView } from './MindMapView';
+import { TreeView } from './TreeView';
+import { FlowChartView } from './FlowChartView';
+import { ListView } from './ListView';
 import type { PageNode } from '../types';
 
 interface DataStudioPageProps {
@@ -36,6 +39,7 @@ async function safeResJson(res: Response): Promise<{ data: Record<string, unknow
 }
 
 type ImportTab = 'file' | 'text';
+type DataStudioView = 'mindmap' | 'tree' | 'flowchart' | 'list';
 
 const ImportPanel: React.FC<{
   onClose: () => void;
@@ -284,6 +288,7 @@ export const DataStudioPage: React.FC<DataStudioPageProps> = ({
   isConsolidating,
 }) => {
   const [showImport, setShowImport] = useState(false);
+  const [view, setView] = useState<DataStudioView>('mindmap');
 
   return (
     <div className="flex-1 flex flex-col min-h-0 relative">
@@ -293,10 +298,32 @@ export const DataStudioPage: React.FC<DataStudioPageProps> = ({
         <div>
           <h1 className="text-[14px] font-black text-gray-900 dark:text-white uppercase tracking-widest">Data Studio</h1>
           <p className="text-[11px] text-gray-400 dark:text-white/30">
-            Knowledge graph. Hover a node for edit, delete, and add actions.
+            Knowledge graph. Switch between MindMap, Tree, Flow Chart, and List views.
           </p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/5">
+            {([
+              ['mindmap', 'MindMap'],
+              ['tree', 'Tree'],
+              ['flowchart', 'Flow'],
+              ['list', 'List'],
+            ] as const).map(([mode, label]) => (
+              <button
+                key={mode}
+                onClick={() => setView(mode)}
+                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-colors ${
+                  view === mode
+                    ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-white/40 hover:text-gray-700 dark:hover:text-white/70'
+                }`}
+                aria-pressed={view === mode}
+                aria-label={`Switch Data Studio view to ${label}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           {isConsolidating && (
             <span className="text-[10px] text-violet-500 font-semibold animate-pulse">Prism consolidating…</span>
           )}
@@ -310,13 +337,22 @@ export const DataStudioPage: React.FC<DataStudioPageProps> = ({
         </div>
       </div>
 
-      {/* MindMap canvas */}
-      <MindMapView
-        tree={tree}
-        onUpdateNode={onUpdateNode}
-        onDeleteNode={onDeleteNode}
-        onAddNode={onAddNode}
-      />
+      {view === 'mindmap' ? (
+        <MindMapView
+          tree={tree}
+          onUpdateNode={onUpdateNode}
+          onDeleteNode={onDeleteNode}
+          onAddNode={onAddNode}
+        />
+      ) : view === 'tree' ? (
+        <TreeView tree={tree} />
+      ) : view === 'flowchart' ? (
+        <div className="flex-1 min-h-0 p-4">
+          <FlowChartView tree={tree} />
+        </div>
+      ) : (
+        <ListView tree={tree} />
+      )}
 
       {showImport && (
         <ImportPanel

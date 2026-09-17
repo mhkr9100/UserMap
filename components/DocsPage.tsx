@@ -50,7 +50,7 @@ const DOC_SECTIONS: DocSection[] = [
         <p>UserMap Phase 5 Final introduces a complete redesign of the application with the following capabilities:</p>
         <ul className="list-disc list-inside space-y-1 mt-2">
           <li><strong>Left sidebar navigation</strong>: Dashboard, Context Search, Data Studio, Connectors, Prism Agent, Logs, Docs</li>
-          <li><strong>MindMap-only Data Studio</strong>: NotebookLM-style full-CRUD knowledge graph visualization</li>
+          <li><strong>Multi-view Data Studio</strong>: MindMap CRUD plus Tree, Flow Chart, and List visualizations</li>
           <li><strong>Connectors (Pull &amp; Push)</strong>: Continuous data ingestion + webhook push to n8n/Make</li>
           <li><strong>Prism Agent</strong>: Always-on, checkpoint-resilient classification pipeline</li>
           <li><strong>Logs</strong>: End-to-end lifecycle timeline for every event</li>
@@ -130,13 +130,17 @@ Content-Type: application/json
     ),
   },
   {
-    title: '📊 Data Studio — MindMap CRUD',
+    title: '📊 Data Studio — MindMap + Tree + Flow + List',
     content: (
       <>
-        <p>Data Studio shows your entire knowledge graph as a <strong>NotebookLM-style MindMap</strong>. Tree, Flow, and List views are planned for a future release.</p>
+        <p>Data Studio shows your entire knowledge graph through multiple synchronized views.</p>
 
         <p className="font-semibold text-gray-600 dark:text-white/50 mt-3">Interactions</p>
         <ul className="list-disc list-inside space-y-1">
+          <li><strong>MindMap</strong> for interactive CRUD editing and branch collapse persistence</li>
+          <li><strong>Tree View</strong> for hierarchy-first navigation with expand/collapse controls</li>
+          <li><strong>Flow Chart View</strong> for directed parent-to-child relationship mapping with pan/zoom</li>
+          <li><strong>List View</strong> for searchable and sortable tabular inspection of node metadata</li>
           <li><strong>Scroll</strong> to zoom in/out</li>
           <li><strong>Drag</strong> to pan across the map</li>
           <li><strong>Hover a node</strong> to reveal Edit (✏️), Add child (+), and Delete (🗑️) buttons</li>
