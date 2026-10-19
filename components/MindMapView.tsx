@@ -133,8 +133,8 @@ const NodeCard: React.FC<NodeCardProps> = ({
               placeholder="New category name…"
               className="px-3 py-1.5 rounded-xl border border-black/15 dark:border-white/15 bg-white dark:bg-black text-[12px] text-gray-900 dark:text-white outline-none focus:border-violet-400 w-44"
             />
-            <button onClick={handleAddChild} className="text-violet-500 hover:text-violet-700"><Check size={14} /></button>
-            <button onClick={() => setAddingChild(false)} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
+            <button onClick={handleAddChild} aria-label="Confirm add child category" className="text-violet-500 hover:text-violet-700"><Check size={14} /></button>
+            <button onClick={() => setAddingChild(false)} aria-label="Cancel add child category" className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
           </div>
         )}
 
@@ -207,6 +207,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
               {hasChildren && (
                 <button
                   onClick={() => onToggleCollapse(node.id)}
+                  aria-label={isCollapsed ? `Expand ${node.label}` : `Collapse ${node.label}`}
                   className="shrink-0 text-gray-400 dark:text-white/20 hover:text-gray-700 dark:hover:text-white/60 mt-0.5"
                 >
                   {isCollapsed ? <ChevronDown size={12} /> : <ChevronUp size={12} />}
@@ -234,6 +235,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
                 onClick={() => { if (window.confirm(`Delete "${node.label}"?`)) onDeleteNode(node.id); }}
                 className="w-5 h-5 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500/20"
                 title="Delete node"
+                aria-label={`Delete ${node.label}`}
               >
                 <Trash2 size={9} />
               </button>

@@ -1,0 +1,3 @@
+## 2024-05-24 - Add ARIA labels to icon-only buttons
+**Learning:** Found a recurring accessibility issue where icon-only action buttons (e.g., Close, Confirm, Delete, Collapse/Expand using Lucide icons) across multiple interactive components like `ConnectorsPage` and `MindMapView` were missing `aria-label` attributes, rendering them completely opaque to screen readers.
+**Action:** When implementing icon-only buttons with `<X>`, `<Check>`, `<Trash2>`, or other visual icons, always ensure an `aria-label` is present. If the button performs an action on a specific item, dynamically include the item's name (e.g., ``aria-label={`Delete ${item.name}`}``) to provide specific context.
