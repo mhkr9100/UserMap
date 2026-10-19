@@ -1,0 +1,3 @@
+## 2024-05-04 - O(N²) Array Bottleneck in Recursive Flattening
+**Learning:** Using array spreading (`entries.push(...recursiveCall())`) inside recursive tree flattening functions creates severe O(N²) performance bottlenecks due to excessive array allocations and copying at every level of the tree. This is particularly slow in `components/ContextSearchView.tsx` and `components/TimelineView.tsx` when parsing deeply nested node structures.
+**Action:** Replaced array spreading with an accumulator array pattern (`entries = []` passed down the recursive chain) ensuring O(N) linear time insertion without memory reallocation overhead.
