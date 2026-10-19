@@ -1,0 +1,4 @@
+## 2024-05-29 - [SQL LIKE Wildcard Injection]
+**Vulnerability:** User input used directly in SQL LIKE clauses without escaping wildcard characters (`%` and `_`). In `apps/server/src/routes/logs.ts`, the `search` query parameter was wrapped with `%` (`%${search}%`) and passed to `LIKE` without escaping `_` or `%` within the user input.
+**Learning:** `better-sqlite3`'s `LIKE` does not automatically escape literal wildcards. Passing user input with unescaped wildcards allows users to craft wildcard queries, potentially leading to slow queries (DoS) or unexpected data exposure. Also, when escaping wildcards using `.replace()`, the backslash itself must be escaped in JS and SQLite requires `ESCAPE '\\'` on the LIKE expression.
+**Prevention:** Always escape user input intended for `LIKE` patterns using `.replace(/[%_\\]/g, '\\$&')` and append `ESCAPE '\'` to the SQL statement.
