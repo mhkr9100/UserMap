@@ -1,0 +1,4 @@
+## 2025-02-21 - Unescaped SQLite LIKE Queries
+**Vulnerability:** SQLite `LIKE` queries in `apps/server/src/routes/logs.ts` (`summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?`) do not escape wildcard characters (`%` and `_`) or the escape character itself (`\`). This allows users to inject wildcards, potentially causing a Denial of Service (DoS) by executing expensive unindexed wildcard searches or accessing unintended data.
+**Learning:** `LIKE` query parameters in Express routes must explicitly cast input to string and escape wildcards, appending `ESCAPE '\'` to the SQL query. The `context.ts` fallback already correctly escapes inputs: `const likeQuery = \`%\${queryStr.replace(/[%_]/g, '\\\\$&')}%\`;` and uses `ESCAPE '\\'`.
+**Prevention:** Always use `.replace(/[%_\\]/g, '\\$&')` and `ESCAPE '\'` for any user-provided string interpolated into a `LIKE` query.

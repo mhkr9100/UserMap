@@ -45,8 +45,9 @@ router.get('/', (req: Request, res: Response) => {
   if (from) { conditions.push('created_at >= ?'); params.push(from); }
   if (to) { conditions.push('created_at <= ?'); params.push(to); }
   if (search) {
-    conditions.push('(summary LIKE ? OR object_ref LIKE ? OR event_type LIKE ?)');
-    const like = `%${search}%`;
+    conditions.push("(summary LIKE ? ESCAPE '\\' OR object_ref LIKE ? ESCAPE '\\' OR event_type LIKE ? ESCAPE '\\')");
+    const escapedSearch = String(search).replace(/([%_\\])/g, '\\$1');
+    const like = `%${escapedSearch}%`;
     params.push(like, like, like);
   }
 
