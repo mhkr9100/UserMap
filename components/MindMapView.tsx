@@ -220,6 +220,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
                 onClick={() => setAddingChild(true)}
                 className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-600 dark:text-violet-300 flex items-center justify-center hover:bg-violet-500/40"
                 title="Add child node"
+                aria-label="Add child node"
               >
                 <Plus size={10} />
               </button>
@@ -227,6 +228,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
                 onClick={() => { setEditLabel(node.label); setEditValue(node.value || ''); setEditing(true); }}
                 className="w-5 h-5 rounded-full bg-gray-200/60 dark:bg-white/10 text-gray-600 dark:text-white/50 flex items-center justify-center hover:bg-gray-300/60 dark:hover:bg-white/20"
                 title="Edit node"
+                aria-label="Edit node"
               >
                 <Pencil size={9} />
               </button>
@@ -234,6 +236,7 @@ const NodeCard: React.FC<NodeCardProps> = ({
                 onClick={() => { if (window.confirm(`Delete "${node.label}"?`)) onDeleteNode(node.id); }}
                 className="w-5 h-5 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500/20"
                 title="Delete node"
+                aria-label="Delete node"
               >
                 <Trash2 size={9} />
               </button>

@@ -294,7 +294,7 @@ export const PrismInterface: React.FC<PrismInterfaceProps> = ({ isOpen, onClose,
                                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                                         placeholder="Ask Prism to query or update data..." disabled={isSending || !!privacyRequest}
                                         className="flex-1 rounded-xl bg-gray-50 dark:bg-black/20 text-[12px] p-3 text-gray-800 dark:text-white resize-none outline-none dark:border-white/10 border" rows={1} />
-                                    <button onClick={handleSend} disabled={isSending || !input.trim() || !!privacyRequest} className="w-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center disabled:opacity-40">
+                                    <button onClick={handleSend} disabled={isSending || !input.trim() || !!privacyRequest} aria-label="Send message" className="w-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center disabled:opacity-40">
                                             <Send size={14} />
                                     </button>
                                 </div>
