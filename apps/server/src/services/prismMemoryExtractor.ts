@@ -203,12 +203,15 @@ const EMOTIONAL_MARKERS: RegExp[] = [
   /\*[^*]+\*/i,
 ];
 
+// ⚡ Bolt: Pre-compile markers to RegExp during initialization to prevent extreme
+// CPU/memory overhead inside tight loops. Global ('g') flag is required by scoreMarkers.
+// Case-insensitive ('i') flag replaces the need for text.toLowerCase() inside the loop.
 const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
-  decision: DECISION_MARKERS,
-  preference: PREFERENCE_MARKERS,
-  milestone: MILESTONE_MARKERS,
-  problem: PROBLEM_MARKERS,
-  emotional: EMOTIONAL_MARKERS,
+  decision: DECISION_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  preference: PREFERENCE_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  milestone: MILESTONE_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  problem: PROBLEM_MARKERS.map(m => new RegExp(m.source, 'gi')),
+  emotional: EMOTIONAL_MARKERS.map(m => new RegExp(m.source, 'gi')),
 };
 
 // ---------------------------------------------------------------------------
@@ -309,11 +312,13 @@ function extractProse(text: string): string {
 // Scoring
 // ---------------------------------------------------------------------------
 
+// ⚡ Bolt: Removed inline new RegExp() and text.toLowerCase() instantiation.
+// Assumes 'markers' are pre-compiled global RegExp objects (with 'g' and 'i' flags).
+// String.prototype.match(globalRegExp) safely handles lastIndex state automatically.
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
