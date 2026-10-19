@@ -1,0 +1,4 @@
+## 2025-04-25 - Missing Wildcard Escaping in SQLite LIKE queries
+**Vulnerability:** Found SQLite `LIKE` queries built dynamically using user inputs but missing the proper escaping for wildcards (`%` and `_`) and the escape character (`\`). In `logs.ts` there was no escaping and no `ESCAPE '\'` clause. In `context.ts` there was a partial escaping but missing the escape character itself `\`.
+**Learning:** Concatenating user strings with `LIKE` clauses without proper character escaping allows attackers to inject wildcards which can match unintended records or launch Denial of Service (DoS) attacks by crafting expensive, highly non-specific search queries.
+**Prevention:** Always explicitly define `ESCAPE '\'` in the SQL query and escape the wildcard characters (`%` and `_`) as well as the escape character (`\`) by applying `.replace(/[%_\\]/g, '\\$&')` to the input string before prepending/appending `%`.
