@@ -1,0 +1,3 @@
+## 2024-05-24 - Recursive Tree Flattening Array Spreading O(N²) Bottleneck
+**Learning:** Found a major performance bottleneck where recursive tree traversal operations (like flattening a hierarchy of nodes) were using array spreading (`entries.push(...flatten(child))`). Because spreading an array is an O(N) operation that copies elements, and doing it recursively effectively re-copies accumulating items at every level, it turns an O(N) traversal into an O(N²) memory operation.
+**Action:** When implementing recursive tree traversals that return lists, always use an accumulator array passed down through the recursion (`flatten(node, acc = []) { acc.push(item); return acc; }`) to maintain O(N) linear time and avoid expensive intermediate array copying.
