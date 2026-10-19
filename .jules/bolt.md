@@ -1,0 +1,3 @@
+## 2024-05-28 - RegExp pre-compilation for text scoring
+**Learning:** Found a performance anti-pattern in `prismMemoryExtractor.ts` where `new RegExp(m.source, 'gi')` was called for every marker inside a tight scoring loop, accompanied by redundant `text.toLowerCase()` string cloning. This causes excessive memory allocation and CPU overhead.
+**Action:** Pre-compiled regular expressions with 'g' and 'i' flags at the module initialization level and utilized `String.prototype.match()` to evaluate them efficiently without needing dynamic `RegExp` instantiation or text mutation, as `match` safely manages `lastIndex`.
