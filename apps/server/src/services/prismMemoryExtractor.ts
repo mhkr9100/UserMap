@@ -203,13 +203,20 @@ const EMOTIONAL_MARKERS: RegExp[] = [
   /\*[^*]+\*/i,
 ];
 
-const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = {
-  decision: DECISION_MARKERS,
-  preference: PREFERENCE_MARKERS,
-  milestone: MILESTONE_MARKERS,
-  problem: PROBLEM_MARKERS,
-  emotional: EMOTIONAL_MARKERS,
-};
+// ⚡ Bolt Optimization: Precompile regex markers with the global flag to avoid
+// instantiating new RegExp objects inside the tight inner loop of scoreMarkers.
+const ALL_MARKERS: Record<Exclude<MemoryCategory, 'general'>, RegExp[]> = Object.fromEntries(
+  Object.entries({
+    decision: DECISION_MARKERS,
+    preference: PREFERENCE_MARKERS,
+    milestone: MILESTONE_MARKERS,
+    problem: PROBLEM_MARKERS,
+    emotional: EMOTIONAL_MARKERS,
+  }).map(([key, markers]) => [
+    key,
+    markers.map((m: RegExp) => new RegExp(m.source, 'gi'))
+  ])
+) as Record<Exclude<MemoryCategory, 'general'>, RegExp[]>;
 
 // ---------------------------------------------------------------------------
 // Sentiment helpers (from MemPalace disambiguation logic)
@@ -311,9 +318,9 @@ function extractProse(text: string): string {
 
 function scoreMarkers(text: string, markers: RegExp[]): number {
   let score = 0;
-  const textLower = text.toLowerCase();
+  // ⚡ Bolt Optimization: Use precompiled regex markers directly
   for (const m of markers) {
-    const matches = textLower.match(new RegExp(m.source, 'gi'));
+    const matches = text.match(m);
     if (matches) score += matches.length;
   }
   return score;
