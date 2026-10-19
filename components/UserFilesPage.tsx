@@ -122,6 +122,7 @@ export const UserFilesPage: React.FC = () => {
             {activeFolder}
           </h1>
           <button
+            aria-label="Refresh"
             onClick={load}
             className="ml-auto text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
             title="Refresh"
