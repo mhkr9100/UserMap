@@ -17,8 +17,10 @@ const App: React.FC = () => {
   const [connectingSlack, setConnectingSlack] = useState(false);
   const [slackError, setSlackError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'connections' | 'context'>('connections');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const refresh = useCallback(async () => {
+    setIsRefreshing(true);
     try {
       const [status, conns] = await Promise.all([api.status(), api.connections()]);
       setStatusData(status);
@@ -27,6 +29,8 @@ const App: React.FC = () => {
     } catch {
       setServerStatus('error');
       setStatusData(null);
+    } finally {
+      setIsRefreshing(false);
     }
   }, []);
 
@@ -74,10 +78,12 @@ const App: React.FC = () => {
             <StatusIndicator status={serverStatus} connections={statusData?.connections} />
             <button
               onClick={() => { void refresh(); }}
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+              aria-label="Refresh connection status"
+              disabled={isRefreshing}
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50"
               title="Refresh"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
             </button>
           </div>
         </div>
