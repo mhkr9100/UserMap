@@ -26,8 +26,8 @@ function normalizeImportance(value?: string): UserMapImportance {
     return value === 'high' || value === 'low' ? value : 'medium';
 }
 
-function flattenAll(node: PageNode, category = 'General Context'): SearchEntry[] {
-    const entries: SearchEntry[] = [];
+// ⚡ Bolt: Use accumulator array instead of array spreading to avoid O(N²) performance bottleneck
+function flattenAll(node: PageNode, category = 'General Context', entries: SearchEntry[] = []): SearchEntry[] {
     const cat = node.nodeType === 'category' ? node.label : category;
 
     if (node.nodeType === 'fact' || (!node.nodeType && (node.children ?? []).length === 0)) {
@@ -44,7 +44,7 @@ function flattenAll(node: PageNode, category = 'General Context'): SearchEntry[]
     }
 
     for (const child of node.children ?? []) {
-        entries.push(...flattenAll(child, cat));
+        flattenAll(child, cat, entries);
     }
 
     return entries;
