@@ -1,0 +1,4 @@
+## 2025-04-29 - SQL Wildcard Injection via LIKE query
+**Vulnerability:** In Express.js routing logs.ts and context.ts, user-provided search strings were not fully escaping backslashes when wrapped in `%` characters for SQLite `LIKE` clauses.
+**Learning:** SQLite's default escaping is insufficient unless explicitly provided an `ESCAPE '\'` clause and correctly regex escaping backslashes (e.g. `replace(/[\\%_]/g, '\\$&')`). In Express.js, array/object typed queries from `req.query` without type conversion can throw TypeErrors during string replacements creating DoS crashes.
+**Prevention:** Always strictly cast user input parameters to strings (e.g. `String(search)`). Explicitly escape the backslash escape sequence alongside `%` and `_`. Provide the explicit `ESCAPE '\'` operator to the `LIKE` clause.
