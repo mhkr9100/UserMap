@@ -40,7 +40,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   const { code, state, error } = req.query as Record<string, string | undefined>;
 
   if (error) {
-    return res.status(400).send(renderPage('Connection Cancelled', `<p>Slack access was denied: ${escapeHtml(error ?? '')}.</p><p><a href="javascript:window.close()">Close this window</a></p>`));
+    return res.status(400).send(renderPage('Connection Cancelled', `<p>Slack access was denied: ${escapeHtml(typeof error === 'string' ? error : '')}.</p><p><a href="javascript:window.close()">Close this window</a></p>`));
   }
 
   if (!code || typeof code !== 'string') {
