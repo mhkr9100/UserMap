@@ -1,0 +1,4 @@
+## 2024-05-24 - Fix wildcard injection and type DoS in SQLite LIKE queries
+**Vulnerability:** Unescaped wildcards (`%`, `_`) and backslashes (`\`) in SQLite `LIKE` queries allow wildcard injection/DoS attacks. Additionally, untyped user inputs from Express `req.query` passed directly to `.replace()` can cause runtime crashes (DoS) if the input is an array or object.
+**Learning:** SQLite's `LIKE` operator evaluates `%` and `_` as wildcards, and requires an explicit `ESCAPE` clause to handle them literally. Also, backslashes must be explicitly escaped in JS string literals before being used in SQLite. Express query parameters can unexpectedly be arrays or objects, breaking string methods.
+**Prevention:** Always explicitly cast user input to strings (e.g., `String(input)`) before applying string operations. When building `LIKE` queries, use `.replace(/[\\%_]/g, '\\$&')` to escape `%`, `_`, and `\`, and explicitly add `ESCAPE '\'` to the SQLite query string.
