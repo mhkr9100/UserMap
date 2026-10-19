@@ -1,0 +1,4 @@
+## 2024-04-26 - SQLite LIKE Wildcard Injection
+**Vulnerability:** User input passed to SQLite `LIKE` clauses was not fully escaped. In `routes/logs.ts`, `%` and `_` were not escaped at all. In `routes/context.ts`, `%` and `_` were escaped, but the backslash `\` escape character itself was not, allowing an attacker to bypass the escaping.
+**Learning:** When using SQLite `LIKE` queries, explicitly append the `ESCAPE '\'` clause and ensure the user input is sanitized by escaping `%`, `_`, and `\`. Additionally, Express query parameters can be parsed as arrays or objects, which can crash string manipulation functions like `.replace()` if not explicitly cast to a string first.
+**Prevention:** Always escape all three characters (`%`, `_`, and `\`) when using `LIKE` with user input, and always use explicit type coercion (e.g. `String(input)`) on query parameters before performing string operations.
