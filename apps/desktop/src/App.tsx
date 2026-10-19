@@ -74,8 +74,9 @@ const App: React.FC = () => {
             <StatusIndicator status={serverStatus} connections={statusData?.connections} />
             <button
               onClick={() => { void refresh(); }}
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               title="Refresh"
+              aria-label="Refresh connection status"
             >
               <RefreshCw size={14} />
             </button>
@@ -105,7 +106,7 @@ const App: React.FC = () => {
                 <button
                   onClick={() => { void handleConnectSlack(); }}
                   disabled={connectingSlack || serverStatus !== 'ok'}
-                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 >
                   <Plug size={14} />
                   {connectingSlack ? 'Connecting…' : 'Connect'}
@@ -148,7 +149,7 @@ const App: React.FC = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-semibold capitalize -mb-px border-b-2 transition-colors ${
+                className={`px-4 py-2 text-sm font-semibold capitalize -mb-px border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-t-lg ${
                   activeTab === tab
                     ? 'border-indigo-600 text-indigo-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
