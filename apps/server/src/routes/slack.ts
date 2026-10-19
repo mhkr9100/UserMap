@@ -84,8 +84,9 @@ router.get('/callback', async (req: Request, res: Response) => {
   }
 });
 
-function escapeHtml(str: string): string {
-  return str
+function escapeHtml(str: unknown): string {
+  // Explicitly cast to string to prevent DoS via type confusion (e.g. if query param is an array)
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
