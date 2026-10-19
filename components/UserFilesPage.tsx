@@ -124,7 +124,7 @@ export const UserFilesPage: React.FC = () => {
           <button
             onClick={load}
             className="ml-auto text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
-            title="Refresh"
+            title="Refresh" aria-label="Refresh list"
           >
             <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           </button>

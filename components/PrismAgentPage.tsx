@@ -429,7 +429,7 @@ export const PrismAgentPage: React.FC<PrismAgentPageProps> = ({
         {/* New chat button */}
         <button
           onClick={startNewSession}
-          title="New conversation"
+          title="New conversation" aria-label="New conversation"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold text-gray-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-white/70 transition-colors"
         >
           <Plus size={13} />
@@ -596,7 +596,7 @@ export const PrismAgentPage: React.FC<PrismAgentPageProps> = ({
               className="flex-1 rounded-xl bg-gray-50 dark:bg-black/20 border border-black/10 dark:border-white/10 text-[12px] p-3 text-gray-800 dark:text-white resize-none outline-none focus:border-violet-400 dark:focus:border-violet-500"
             />
             <button
-              onClick={handleSend}
+              onClick={handleSend} aria-label="Send message"
               disabled={isSending || !input.trim() || !!privacyRequest}
               className="w-10 rounded-xl bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center disabled:opacity-40 transition-colors"
             >
