@@ -74,7 +74,8 @@ const App: React.FC = () => {
             <StatusIndicator status={serverStatus} connections={statusData?.connections} />
             <button
               onClick={() => { void refresh(); }}
-              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50"
+              aria-label="Refresh connection status"
+              className="rounded-lg border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               title="Refresh"
             >
               <RefreshCw size={14} />
