@@ -58,7 +58,7 @@ router.post('/', (req: Request<object, object, ContextRequestBody>, res: Respons
     }
   } catch {
     // FTS MATCH might throw on malformed query — fall back to LIKE search
-    const likeQuery = `%${queryStr.replace(/[%_]/g, '\\$&')}%`;
+    const likeQuery = `%${String(queryStr).replace(/[%_\\]/g, '\\$&')}%`;
 
     if (allowedSources && allowedSources.length > 0) {
       const placeholders = allowedSources.map(() => '?').join(', ');
