@@ -39,7 +39,11 @@ export const ContextQuery: React.FC = () => {
   return (
     <div className="space-y-4">
       <form onSubmit={handleSearch} className="flex gap-2">
+        <label htmlFor="context-search" className="sr-only">
+          Search context
+        </label>
         <input
+          id="context-search"
           ref={inputRef}
           type="text"
           value={query}
