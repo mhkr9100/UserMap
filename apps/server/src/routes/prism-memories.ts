@@ -178,14 +178,13 @@ export function persistMemoryUnit(
 
 router.get('/memories', (req: Request, res: Response) => {
   const db = getDb();
-  const {
-    category,
-    source_tool,
-    conflict_only,
-    q,
-    limit: limitStr = '50',
-    offset: offsetStr = '0',
-  } = req.query as Record<string, string | undefined>;
+  const qRaw = req.query as Record<string, unknown>;
+  const category = typeof qRaw.category === 'string' ? qRaw.category : undefined;
+  const source_tool = typeof qRaw.source_tool === 'string' ? qRaw.source_tool : undefined;
+  const conflict_only = typeof qRaw.conflict_only === 'string' ? qRaw.conflict_only : undefined;
+  const q = typeof qRaw.q === 'string' ? qRaw.q : undefined;
+  const limitStr = typeof qRaw.limit === 'string' ? qRaw.limit : '50';
+  const offsetStr = typeof qRaw.offset === 'string' ? qRaw.offset : '0';
 
   const limit = Math.min(parseInt(limitStr ?? '50', 10) || 50, 200);
   const offset = parseInt(offsetStr ?? '0', 10) || 0;
