@@ -178,17 +178,21 @@ export function persistMemoryUnit(
 
 router.get('/memories', (req: Request, res: Response) => {
   const db = getDb();
-  const {
-    category,
-    source_tool,
-    conflict_only,
-    q,
-    limit: limitStr = '50',
-    offset: offsetStr = '0',
-  } = req.query as Record<string, string | undefined>;
+  const getStr = (key: string, def?: string): string | undefined => {
+    const val = req.query[key];
+    return typeof val === 'string' ? val : def;
+  };
+  const category = getStr('category');
+  const source_tool = getStr('source_tool');
+  const conflict_only = getStr('conflict_only');
+  const q = getStr('q');
+  const limitStr = getStr('limit', '50') as string;
+  const offsetStr = getStr('offset', '0') as string;
 
-  const limit = Math.min(parseInt(limitStr ?? '50', 10) || 50, 200);
-  const offset = parseInt(offsetStr ?? '0', 10) || 0;
+  const parsedLimit = parseInt(limitStr, 10);
+  const parsedOffset = parseInt(offsetStr, 10);
+  const limit = Math.min(Number.isNaN(parsedLimit) ? 50 : parsedLimit, 200);
+  const offset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
 
   // FTS path (MemPalace L3 deep search style)
   if (q && q.trim()) {
