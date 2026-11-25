@@ -1,5 +1,7 @@
 # UserMap — Personal Context OS
 
+> The earlier repository for this project, `UserMap2`, is merged here as the [`usermap2`](https://github.com/mhkr9100/UserMap/tree/usermap2) branch with its full history. It holds two commits that are not on `main`: a README rewrite and a work-in-progress Slack connector, which continues on [`usermap2-slack-connector`](https://github.com/mhkr9100/UserMap/tree/usermap2-slack-connector). `UserMap2` itself is archived.
+
 > **AI knows the world. UserMap helps AI know *you*.**
 >
 > General AI can answer "Who is the US president?" because it has access to public data. But it can't answer "What's my career goal?" or "What did I post on Instagram last week?" because it doesn't have *your* data. UserMap is a **Personal Knowledge Permission Layer** for AI — it stores, structures, and controls access to your personal context, locally and privately, so any AI tool can truly know you.
